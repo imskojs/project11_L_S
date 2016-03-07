@@ -1,0 +1,47 @@
+MyFitMate 사용자 아이디 <%= user.username %> 별명 <%= user.nickname || "없음" %> 의 상담 이메일
+----------
+
+MyFitMate 사용자 상담 관리자 이메일 입니다.
+
+사용자 아이디: <%= user.username %>
+
+사용자 별명: <%= user.nickname || "없음" %>
+
+문의 내용: <%= content %>
+
+
+
+
+-애플리켓 Team-
+WE MAKE APPS
+html:
+<div style="background: #e6ebfc">
+   <img style="width: 100%; display:block" src='cid:applicat-mailheader'/>
+   <div style="padding: 50px 30%; font-size: 1.2em; color:black;">
+      <div style="width:100%; text-align: center; font-size: 1.2em; font-weight: bold;">MyFitMate 사용자 상담 관리자 이메일 입니다.</div>
+      <br/>
+      <br/>
+        <span style="color:black">
+          사용자 아이디: <%= user.username %>
+        </span>
+      <br/>
+      <br/>
+        <span style="color:black">
+          사용자 별명: <%= user.nickname || "없음" %>
+        </span>
+      <br/>
+      <br/>
+        <span style="color:black">
+          문의 내용: <%= content %>
+        </span>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      -<span style="color: #2d4b65; font-weight:bold">애플리켓</span> Team-
+      <br/>
+      <span style="color: #ed1e79; font-weight: bold"> WE MAKE APPS
+	</div>
+	<img style="width: 100%; display:block" src='cid:applicat-mailfooter'/>
+	<br/>
+</div>

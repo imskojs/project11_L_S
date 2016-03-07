@@ -1,0 +1,296 @@
+[주당 제휴신청 결제 완료]  <%= data.buyer_name %>님이 제휴신청과 결제를 완료하셨습니다. 
+----------
+
+아래는 주당 결제완료된 정보입니다.
+
+신청자: <%= data.buyer_name %>
+
+신청자 이메일: <%= data.buyer_email %>
+
+신청자 전화번호: <%= data.buyer_tel %>
+
+신청자 주소: <%= data.buyer_addr %>
+
+서비스 종류: <%= data.name %>
+
+결제된 금액: <%= data.paid_amount %>
+
+
+
+아래는 등록하고자하는 술집 정보입니다. 
+
+상호명: <%= data.custom_data.storeName %>
+업소연락처: <%= data.custom_data.storeNumber %>
+지역(시): <%= data.custom_data.selectedFirstLevel %>
+지역(동): <%= data.custom_data.selectedSecondLevel %>
+업소주소: <%= data.custom_data.address %>
+대표자성함: <%= data.custom_data.ceoName %>
+대표자이메일: <%= data.custom_data.email %>
+대표자연락처: <%= data.custom_data.ceoContact %>
+업주전화번호: <%= data.custom_data.storeNumber %>
+오픈시간: <%= data.custom_data.openHour %>
+마감시간: <%= data.custom_data.closeHour %>
+수용가능인원(규모): <%= data.custom_data.people %>
+주변역: <%= data.custom_data.nearbyStation %>
+한줄소개: <%= data.custom_data.brief %>
+서비스 종류: <%= data.custom_data.selectedServiceType.name %>
+방문촬영 신청: <%= data.custom_data.takePicture ? '예' : '아니오' %>
+방문촬영 가능날짜: <%= data.custom_data.pictureDate %>
+방문촬영 가능시간: <%= data.custom_data.pictureTime %>
+활인율: <%= data.custom_data.selectedDiscount %>
+이벤트: <%= data.custom_data.selectedEventType %>
+이벤트(직접입력): <%= data.custom_data.eventDescription %>
+회원혜택 적용 동의: <%= data.custom_data.agreeService %>
+약관 동의: <%= data.custom_data.agreeServiceTerm %>
+태그1(주점종류,키워드상위): <%= data.custom_data.tag1 %>
+태그2(주변역): <%= data.custom_data.tag2 %>
+태그3: <%= data.custom_data.tag3 %>
+태그4: <%= data.custom_data.tag4 %>
+태그5: <%= data.custom_data.tag5 %>
+테마: <%= data.custom_data.selectedThemeType %>
+
+키워드들(하위) 
+<%= data.custom_data.roomType ? '룸식' : ''%>
+<%= data.custom_data.allDay ? '24시' : ''%>
+<%= data.custom_data.quiet ? '조용한' : ''%>
+<%= data.custom_data.niceChairs ? '편한의자' : ''%>
+<%= data.custom_data.toiletInside ? '내부화장실' : ''%>
+<%= data.custom_data.sitOnFloor ? '좌식' : ''%>
+<%= data.custom_data.smokeArea ? '흡연가능' : ''%>
+<%= data.custom_data.affordable ? '싸다' : ''%>
+
+
+아래는 관리자 페이지에서 사용하는 데이터 입니다.(컴퓨터에서 쓰이는 데이터 입력필요 없음)
+imp_uid: <%= data.imp_uid %>
+pay_method: <%= data.pay_method %>
+merchant_uid: <%= data.merchant_uid %>
+pg_provider: <%= data.pg_provider %>
+pg_tid: <%= data.pg_tid %>
+pg_tid: <%= data.pg_tid %>
+status: <%= data.status %>
+paid_at: <%= data.paid_at %>
+receipt_url: <%= data.receipt_url %>
+
+이상입니다
+html:
+<div style="background: #e6ebfc">
+   <img style="width: 100%; display:block" src='cid:applicat-mailheader'/>
+   <div style="padding: 50px 30%; font-size: 1.2em; color:black;">
+
+      <div style="width:100%; text-align: center; font-size: 1.2em; font-weight: bold;">
+        아래는 주당 결제완료된 정보입니다.
+      </div>
+      <br/>
+        <span style="color:black">
+          신청자: <%= data.buyer_name %>
+        </span>
+      <br/>
+        <span style="color:black">
+          신청자 이메일: <%= data.buyer_email %>
+        </span>
+      <br/>
+        <span style="color:black">
+          신청자 전화번호: <%= data.buyer_tel %>
+        </span>
+      <br/>
+        <span style="color:black">
+          신청자 주소: <%= data.buyer_addr %>
+        </span>
+      <br/>
+        <span style="color:black">
+          서비스 종류: <%= data.name %>
+        </span>
+      <br/>
+        <span style="color:black">
+          결제된 금액: <%= data.paid_amount %>
+        </span>
+      <br/>
+      <br/>
+
+      <div style="width:100%; text-align: center; font-size: 1.2em; font-weight: bold;">
+          아래는 등록하고자하는 술집 정보입니다. 
+      </div>
+      <br/>
+        <span style="color:black">
+          상호명: <%= data.custom_data.storeName %>
+        </span>
+      <br/>
+        <span style="color:black">
+          업소연락처: <%= data.custom_data.storeNumber %>
+        </span>
+      <br/>
+        <span style="color:black">
+          지역(시): <%= data.custom_data.selectedFirstLevel %>
+        </span>
+      <br/>
+        <span style="color:black">
+          지역(동): <%= data.custom_data.selectedSecondLevel %>
+        </span>
+      <br/>
+        <span style="color:black">
+          업소주소: <%= data.custom_data.address %>
+        </span>
+      <br/>
+        <span style="color:black">
+          대표자성함: <%= data.custom_data.ceoName %>
+        </span>
+      <br/>
+        <span style="color:black">
+          대표자이메일: <%= data.custom_data.email %>
+        </span>
+      <br/>
+        <span style="color:black">
+          대표자연락처: <%= data.custom_data.ceoContact %>
+        </span>
+      <br/>
+        <span style="color:black">
+          업주전화번호: <%= data.custom_data.storeNumber %>
+        </span>
+      <br/>
+        <span style="color:black">
+          오픈시간: <%= data.custom_data.openHour %>
+        </span>
+      <br/>
+        <span style="color:black">
+          마감시간: <%= data.custom_data.closeHour %>
+        </span>
+      <br/>
+        <span style="color:black">
+        </span>
+      <br/>
+        <span style="color:black">
+          수용가능인원(규모): <%= data.custom_data.people %>
+        </span>
+      <br/>
+        <span style="color:black">
+          주변역: <%= data.custom_data.nearbyStation %>
+        </span>
+      <br/>
+        <span style="color:black">
+          한줄소개: <%= data.custom_data.brief %>
+        </span>
+      <br/>
+        <span style="color:black">
+          서비스 종류: <%= data.custom_data.selectedServiceType.name %>
+        </span>
+      <br/>
+        <span style="color:black">
+          방문촬영 신청: <%= data.custom_data.takePicture ? '예' : '아니오' %>
+        </span>
+      <br/>
+        <span style="color:black">
+          방문촬영 가능날짜: <%= data.custom_data.pictureDate %>
+        </span>
+      <br/>
+        <span style="color:black">
+          방문촬영 가능시간: <%= data.custom_data.pictureTime %>
+        </span>
+      <br/>
+        <span style="color:black">
+          활인율: <%= data.custom_data.selectedDiscount %>
+        </span>
+      <br/>
+        <span style="color:black">
+          이벤트: <%= data.custom_data.selectedEventType %>
+        </span>
+      <br/>
+        <span style="color:black">
+          이벤트(직접입력): <%= data.custom_data.eventDescription %>
+        </span>
+      <br/>
+        <span style="color:black">
+          회원혜택 적용 동의: <%= data.custom_data.agreeService %>
+        </span>
+      <br/>
+        <span style="color:black">
+          약관 동의: <%= data.custom_data.agreeServiceTerm %>
+        </span>
+      <br/>
+        <span style="color:black">
+          태그1(주점종류,키워드상위): <%= data.custom_data.tag1 %>
+        </span>
+      <br/>
+        <span style="color:black">
+          태그2(주변역): <%= data.custom_data.tag2 %>
+        </span>
+      <br/>
+        <span style="color:black">
+          태그3: <%= data.custom_data.tag3 %>
+        </span>
+      <br/>
+        <span style="color:black">
+          태그4: <%= data.custom_data.tag4 %>
+        </span>
+      <br/>
+        <span style="color:black">
+          태그5: <%= data.custom_data.tag5 %>
+        </span>
+      <br/>
+        <span style="color:black">
+          테마: <%= data.custom_data.selectedThemeType %>
+        </span>
+      <br/>
+        <span style="color:black">
+          키워드들(하위) 
+          <%= data.custom_data.roomType ? '룸식' : ''%>
+          <%= data.custom_data.allDay ? '24시' : ''%>
+          <%= data.custom_data.quiet ? '조용한' : ''%>
+          <%= data.custom_data.niceChairs ? '편한의자' : ''%>
+          <%= data.custom_data.toiletInside ? '내부화장실' : ''%>
+          <%= data.custom_data.sitOnFloor ? '좌식' : ''%>
+          <%= data.custom_data.smokeArea ? '흡연가능' : ''%>
+          <%= data.custom_data.affordable ? '싸다' : ''%>
+        </span>
+      <br/>
+      <br/>
+
+      <div style="width:100%; text-align: center; font-size: 1.2em; font-weight: bold;">
+        아래는 관리자 페이지에서 사용하는 데이터 입니다.(컴퓨터에서 쓰이는 데이터 입력필요 없음)
+      </div>
+      <br/>
+        <span style="color:black">
+          imp_uid: <%= data.imp_uid %>
+        </span>
+      <br/>
+        <span style="color:black">
+          pay_method: <%= data.pay_method %>
+        </span>
+      <br/>
+        <span style="color:black">
+          merchant_uid: <%= data.merchant_uid %>
+        </span>
+      <br/>
+        <span style="color:black">
+          pg_provider: <%= data.pg_provider %>
+        </span>
+      <br/>
+        <span style="color:black">
+          pg_tid: <%= data.pg_tid %>
+        </span>
+      <br/>
+        <span style="color:black">
+          pg_tid: <%= data.pg_tid %>
+        </span>
+      <br/>
+        <span style="color:black">
+        </span>
+      <br/>
+        <span style="color:black">
+          status: <%= data.status %>
+        </span>
+      <br/>
+        <span style="color:black">
+          paid_at: <%= data.paid_at %>
+        </span>
+      <br/>
+        <span style="color:black">
+          receipt_url: <%= data.receipt_url %>
+        </span>
+      <br/>
+      <br/>
+      -<span style="color: #2d4b65; font-weight:bold">이상입니다</span>
+      <br/>
+  </div>
+  <img style="width: 100%; display:block" src='cid:applicat-mailfooter'/>
+  <br/>
+</div>

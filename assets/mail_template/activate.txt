@@ -1,0 +1,47 @@
+애플리켓 계정 인증 및 활성 이메일.
+----------
+안녕하세요.
+
+애플리켓 계정 인증 및 활성 이메일 입니다.
+
+이 이메일은 <%= request.activator.firstname %> <%= request.activator.lastname %>님에 것입니다.
+
+받으신 분이 <%= request.activator.firstname %> <%= request.activator.lastname %>가 아니라면 이메이을 지워주세요.
+
+<%= request.activator.firstname %> <%= request.activator.lastname %>님이 맞으시면
+아래 링크를 누르시고 이메일 인증을 해주세요:
+					<%= request.protocol %>://<%= request.headers.host %>/user/activate?user=<%= id %>&code=<%= code %>
+
+고맙습니다.
+
+애플리켓 team
+WE MAKE APPS
+html:
+<div style="background: #e6ebfc">
+   <img style="width: 100%; display:block" src='cid:applicat-mailheader'/>
+   <div style="padding: 50px 30%">
+   <h2>애플리켓 계정 인증 및 활성 이메일</h2>
+      <br/>
+        안녕하세요.
+        <br/>
+        애플리켓 계정 인증 및 활성 이메일 입니다.
+        <br/>
+        이 이메일은 <b><%= request.activator.firstname %> <%= request.activator.lastname %></b>님에 것입니다.
+        <br/>
+        <br/>
+        받으신 분이  <%= request.activator.firstname %> <%= request.activator.lastname %>가 아니라면 이메이을 지워주세요.
+        <br/>
+        <br/>
+        <%= request.activator.firstname %> <%= request.activator.lastname %>님이 맞으시면
+        <br/>
+        아래 링크를 누르시고 이메일 인증을 해주세요:
+        <%= request.protocol %>://<%= request.headers.host %>/user/activate?user=<%= id %>&code=<%= code %>
+      <br/>
+      <br/>
+      고맙습니다.
+      <br/>
+      <br/>
+	</div>
+	<img style="width: 100%; display:block" src='cid:applicat-mailfooter'/>
+	<br/>
+</div>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="EUC-KR">
+  <title>Insert title here</title>
+</head>
+<body>
+
+<div style="background: #e6ebfc">
+  <img style="width: 100%; display:block" src='cid:applicat-mailheader'/>
+  <div style="padding: 50px 30%">
+    <h2>사용자 상담 MyFitMate 관리자 이메일 입니다.</h2>
+    <br/>
+    <br/>
+    사용자 아이디: <%= user.username %>
+    <br/>
+    사용자 별명: <%= user.nickname || "없음" %>
+    <br/>
+    사용자 전화번호: <%= phone %>
+    <br/>
+    문의 내용: <%= content %>
+    <br/>
+    <br/>
+    FROM 애플리켓 team
+    WE MAKE APPS
+  </div>
+  <img style="width: 100%; display:block" src='cid:applicat-mailfooter'/>
+  <br/>
+</div>
+
+</body>
+</html>
