@@ -1,4 +1,6 @@
+/* jshint ignore:start */
 'use strict';
+/* jshint ignore:end */
 
 var gcm = require('push-notify');
 var nodemailer = require("nodemailer");
@@ -8,7 +10,8 @@ module.exports.connections = {
 
   someMongodbServer: {
     adapter: 'sails-mongo',
-    url: "mongodb://localhost:27017/joodang"
+    url: "mongodb://joodangDbUser:applicat88@SG-Applicat-5222.servers.mongodirector.com:27017/joodang"
+      // url: "mongodb://localhost:27017/joodang"
   },
 
   gcm: gcm.gcm({
