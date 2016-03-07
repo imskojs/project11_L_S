@@ -375,8 +375,7 @@ function ask(req, res) {
   var query = queryWrapper.query;
 
   return MailService.sendToUsers(
-      // [{ email: 'joodang123@naver.com' }],
-      [{ email: 'developer@applicat.co.kr' }],
+      [{ email: 'joodang123@naver.com' }],
       'admin', { data: query },
       query.email || 'admin@applicat.co.kr'
     )
