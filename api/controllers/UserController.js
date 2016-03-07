@@ -347,7 +347,7 @@ function contactAdmin(req, res) {
   return ImageService.uploadFiles(req)
     .then((imagesInServer) => {
       let sendToUsersPromise = MailService.sendToUsers(
-        [{ email: 'developer@applicat.co.kr' }],
+        [{ email: 'joodang123@naver.com' }],
         'transactioninfo', { data: query },
         query.custom_data.email || 'admin@applicat.co.kr',
         imagesInServer
