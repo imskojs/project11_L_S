@@ -21,6 +21,7 @@ _.merge(exports, {
   create: create,
   destroy: destroy,
   contactAdmin: contactAdmin,
+  ask: ask
 });
 
 function find(req, res) {
@@ -339,6 +340,9 @@ function destroy(req, res) {
 //     });
 // }
 
+//====================================================
+//  결제
+//====================================================
 function contactAdmin(req, res) {
   var queryWrapper = QueryService.buildQuery(req);
   sails.log("queryWrapper --User.contactAdmin-- :::\n", queryWrapper);
@@ -354,6 +358,27 @@ function contactAdmin(req, res) {
       );
       return sendToUsersPromise;
     })
+    .then((sentMessages) => {
+      return res.ok({ messages: sentMessages });
+    })
+    .catch((err) => {
+      return res.negotiate(err);
+    });
+}
+
+//====================================================
+//  문의하기
+//====================================================
+function ask(req, res) {
+  var queryWrapper = QueryService.buildQuery(req);
+  sails.log("queryWrapper --User.contactAdmin-- :::\n", queryWrapper);
+  var query = queryWrapper.query;
+
+  return MailService.sendToUsers(
+      [{ email: 'joodang123@naver.com' }],
+      'admin', { data: query },
+      query.email || 'admin@applicat.co.kr'
+    )
     .then((sentMessages) => {
       return res.ok({ messages: sentMessages });
     })

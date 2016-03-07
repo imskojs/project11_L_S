@@ -66,6 +66,7 @@ module.exports.policies = {
   ],
 
   UserController: {
-    contactAdmin: true
+    contactAdmin: true,
+    ask: true
   }
 };

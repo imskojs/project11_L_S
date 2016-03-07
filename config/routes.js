@@ -77,6 +77,8 @@ module.exports.routes = {
   'POST /user/loginWithOauth': 'AuthController.registerPassport',
   'GET /user/findOne': 'UserController.findOne',
   'PUT /user/update': 'UserController.update',
+  'POST /email/admin': 'UserController.contactAdmin',
+  'POST /email/ask': 'UserController.ask',
   //====================================================
   //  Event
   //====================================================
@@ -128,7 +130,6 @@ module.exports.routes = {
   // 'PUT /user/update': 'UserController.update',
   'DELETE /user/destroy': 'UserController.destroy',
 
-  'POST /email/admin': 'UserController.contactAdmin',
 
 
 
