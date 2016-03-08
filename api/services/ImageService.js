@@ -205,7 +205,7 @@ function destroyPhotos(photoIds) {
     photoIds = [];
   }
   if (photoIds.length === 0) {
-    return [];
+    return Promise.resolve([]);
   }
   return Photo.destroy({ id: photoIds })
     .then((destroyedPhotos) => {
