@@ -14,6 +14,10 @@ module.exports = {
     showLinkButton: {
       type: 'Boolean'
     },
+
+    homepage: {
+      type: 'STRING'
+    },
     //기간
     duration: {
       type: 'String'

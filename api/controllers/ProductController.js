@@ -1,8 +1,10 @@
 //====================================================
-//  Touched by Ko 2.16
+//  Touched by Ko 3.16
 //====================================================
+/* jshint ignore:start */
 'use strict';
 var Promise = require('bluebird');
+/* jshint ignore:end */
 var _ = require('lodash');
 
 module.exports = {
@@ -14,7 +16,7 @@ module.exports = {
   //====================================================
   //  Not used
   //====================================================
-  findNative: findNative,
+  // findNative: findNative,
 };
 
 function create(req, res) {
@@ -142,24 +144,29 @@ function destroy(req, res) {
     });
 }
 
-function findNative(req, res) {
 
-  var queryWrapper = QueryService.buildQuery(req);
-  sails.log("-----------  queryWrapper: Product.findNative  -------------");
-  sails.log(queryWrapper);
 
-  return Promise.resolve(QueryService.executeNative(Product, queryWrapper))
-    .spread((products, more, count) => {
-      res.ok({
-        products: products,
-        more: more,
-        total: count
-      });
-    })
-    .catch((err) => {
-      sails.log.error(err);
-      res.send(500, {
-        message: "장소 로딩을 실패 했습니다. 서버에러 code: 001"
-      });
-    });
-}
+
+
+
+// function findNative(req, res) {
+
+//   var queryWrapper = QueryService.buildQuery(req);
+//   sails.log("-----------  queryWrapper: Product.findNative  -------------");
+//   sails.log(queryWrapper);
+
+//   return Promise.resolve(QueryService.executeNative(Product, queryWrapper))
+//     .spread((products, more, count) => {
+//       res.ok({
+//         products: products,
+//         more: more,
+//         total: count
+//       });
+//     })
+//     .catch((err) => {
+//       sails.log.error(err);
+//       res.send(500, {
+//         message: "장소 로딩을 실패 했습니다. 서버에러 code: 001"
+//       });
+//     });
+// }

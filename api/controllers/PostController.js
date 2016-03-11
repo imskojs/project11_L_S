@@ -1,8 +1,10 @@
 //====================================================
 //  Touched by Ko
 //====================================================
+/* jshint ignore:start */
 'use strict';
 const Promise = require('bluebird');
+/* jshint ignore:end */
 const _ = require('lodash');
 
 module.exports = {

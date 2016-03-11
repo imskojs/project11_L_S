@@ -1,17 +1,20 @@
 //====================================================
 //  Touched by Ko 2.16
 //====================================================
+/* jshint ignore:start */
 'use strict';
-const _ = require('lodash');
-const Promise = require('bluebird');
+var Promise = require('bluebird');
+/* jshint ignore:end */
 
+var _ = require('lodash');
 module.exports = {
   create: create,
   findNative: findNative,
   find: find,
   findOne: findOne,
   update: update,
-  destroy: destroy
+  destroy: destroy,
+  updateProducts: updateProducts
 };
 
 // TODO: update, destroy
@@ -223,9 +226,9 @@ function update(req, res) {
   }
 
   let propertiesAllowedToUpdate = [
-    'photos', 'name', 'tagString', 'tags', 'category', 'province', 'themes', 'keywords',
+    'photos', 'name', 'tagString', 'tags', 'category', 'province', 'theme', 'keywords',
     'address', 'geoJSON', 'hours', 'size', 'summary', 'showDiscountTag', 'discountTitle',
-    'discountContent', 'showEventTag', 'events', 'phone'
+    'discountContent', 'showEventTag', 'eventContent', 'phone'
   ];
   let propertiesToUpdate = {};
   _.forEach(propertiesAllowedToUpdate, (property) => {
@@ -258,7 +261,7 @@ function destroy(req, res) {
 
   let id = query.where.id;
   if (!QueryService.checkParamPassed(id)) {
-    return res.send(400, { message: "id" });
+    return res.send(400, { message: "!id" });
   }
 
   return Place.findOne({ id: id })
@@ -270,21 +273,70 @@ function destroy(req, res) {
         return Promise.reject({ message: 'no place' });
       }
       let photoIds = _.pluck(place.photos, 'id');
-      let photos = ImageService.destoryPhotos(photoIds);
+      let photos = ImageService.destroyPhotos(photoIds);
 
       let productIds = _.pluck(place.products, 'id');
-      let products = Product.destory({ id: productIds });
+      let products = Product.destroy({ id: productIds });
 
       let reviewIds = _.pluck(place.reviews, 'id');
       let reviews = Review.destroy({ id: reviewIds });
 
-      let places = Place.destory({ id: place.id });
+      let places = Place.destroy({ id: place.id });
 
-      return [places, reviews, products, photos];
+      let reviewComments;
+      if (Array.isArray(reviewIds) && reviewIds.length > 0) {
+        reviewComments = Comment.destroy({ review: reviewIds });
+      }
+
+      return [places, reviews, products, photos, reviewComments];
     })
     .spread((places) => {
       let place = places[0];
       return res.ok(place);
+    })
+    .catch((err) => {
+      return res.negotiate(err);
+    });
+}
+
+// {place:id, products: Array<Object>}
+function updateProducts(req, res) {
+  var queryWrapper = QueryService.buildQuery(req);
+  var query = queryWrapper.query;
+  var place = query.place;
+  delete query.place;
+  if (!QueryService.checkParamPassed(place)) {
+    return res.send(400, { message: "!place" });
+  }
+  return Product.destroy({ place: place })
+    .then((destroyedProducts) => {
+      sails.log("destroyedProducts :::\n", destroyedProducts);
+      let products = [];
+      _.forEach(query.products, (product) => {
+        if (product.name && product.price) {
+          delete product.id;
+          delete product.createdAt;
+          delete product.updatedAt;
+          product.place = place;
+          product.createdBy = req.user && req.user.id;
+          product.updateddBy = req.user && req.user.id;
+          products.push(product);
+        }
+      });
+      return Product.create(products);
+    })
+    .then((createdProducts) => {
+      sails.log("createdProducts :::\n", createdProducts);
+      return Product.find({
+        where: { place: place },
+        sort: 'id ASC'
+      });
+    })
+    .then((products) => {
+      return res.ok({
+        products: products
+      });
+
     })
     .catch((err) => {
       return res.negotiate(err);

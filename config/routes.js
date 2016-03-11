@@ -20,15 +20,17 @@ module.exports.routes = {
   'GET /place/findOne': 'PlaceController.findOne',
   'PUT /place/update': 'PlaceController.update',
   'DELETE /place/destroy': 'PlaceController.destroy',
+  'PUT /place/updateProducts': 'PlaceController.updateProducts',
   //====================================================
   //  Review
   //====================================================
   'POST /review/createReview': 'ReviewController.createReview',
-  'POST /review/create': 'ReviewController.create',
   'GET /review/find': 'ReviewController.find',
   'GET /review/findOne': 'ReviewController.findOne',
-  'PUT /review/update': 'ReviewController.update',
-  'DELETE /review/destroy': 'ReviewController.destroy',
+  'PUT /review/updateReview': 'ReviewController.updateReview',
+  'DELETE /review/destroyReview': 'ReviewController.destroyReview',
+  // probably not used
+  // 'POST /review/create': 'ReviewController.create',
   //====================================================
   //  Favorite
   //====================================================
@@ -52,11 +54,11 @@ module.exports.routes = {
   //====================================================
   //  Comment
   //====================================================
-  'POST /comment/create': 'CommentController.create',
+  'POST /comment/createComment': 'CommentController.createComment',
   'GET /comment/find': 'CommentController.find',
   'GET /comment/findOne': 'CommentController.findOne',
-  'PUT /comment/update': 'CommentController.update',
-  'DELETE /comment/destroy': 'CommentController.destroy',
+  'PUT /comment/updateComment': 'CommentController.updateComment',
+  'DELETE /comment/destroyComment': 'CommentController.destroyComment',
   //====================================================
   //  Post
   //====================================================

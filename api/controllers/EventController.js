@@ -96,7 +96,7 @@ function update(req, res) {
 
   let propertiesAllowedToUpdate = [
     'photos', 'title', 'category', 'showLinkButton', 'duration', 'location', 'content',
-    'warning'
+    'warning', 'homepage'
   ];
   let propertiesToUpdate = {};
   _.forEach(propertiesAllowedToUpdate, (property) => {

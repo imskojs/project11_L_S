@@ -1,8 +1,10 @@
 //====================================================
 //  Touched by Ko 2.16
 //====================================================
+/* jshint ignore:start */
 'use strict';
 const Promise = require('bluebird');
+/* jshint ignore:end */
 const _ = require('lodash');
 
 module.exports = {
@@ -10,8 +12,8 @@ module.exports = {
   createReview: createReview,
   find: find,
   findOne: findOne,
-  update: update,
-  destroy: destroy,
+  updateReview: updateReview,
+  destroyReview: destroyReview,
 };
 
 function create(req, res) {
@@ -56,11 +58,18 @@ function createReview(req, res) {
     })
     .spread((place, review) => {
       let ratings = _.pluck(place.reviews, 'rating'); // place.reviews emmute?
-      let newAverage = _.mean(ratings);
+
+      // Mean start
+      let ratingTotal = _.reduce(ratings, (mem, rating) => {
+        return mem + rating;
+      }, 0);
+      let ratingAverage = ratingTotal / (ratings.length || 1);
+      // Mean end
+
       let placeUpdate = Place.update({
         id: place.id
       }, {
-        averageRating: newAverage
+        averageRating: ratingAverage
       });
       return [review, placeUpdate];
     })
@@ -83,18 +92,74 @@ function find(req, res) {
     query.limit = query.limit + 1;
   }
 
-  let reviewFind = Review.find(query);
-  _.forEach(populate, (populateProp) => {
-    if (typeof populateProp === 'string') {
-      reviewFind = reviewFind.populate(populateProp);
-    } else {
-      reviewFind = reviewFind.populate(populateProp.property, populateProp.criteria);
+  //====================================================
+  // REFACTOR Nested Search Term
+  //====================================================
+  let newSearchTermPromise;
+  if (Array.isArray(query.where.or)) {
+    // places
+    let placeSearchWordWrapper = _.compact(_.pluck(query.where.or, 'place'))[0];
+    let placeSearchWord;
+    let placesPromise;
+    if (placeSearchWordWrapper) {
+      placeSearchWord = placeSearchWordWrapper.contains;
+      placesPromise = Place.find({
+        where: {
+          name: { contains: placeSearchWord }
+        }
+      });
     }
-  });
+    // owners
+    let ownerSearchWordWrapper = _.compact(_.pluck(query.where.or, 'owner'))[0];
+    let ownerSearchWord;
+    let ownersPromise;
+    if (ownerSearchWordWrapper) {
+      ownerSearchWord = ownerSearchWordWrapper.contains;
+      ownersPromise = User.find({
+        where: {
+          nickname: { contains: ownerSearchWord }
+        }
+      });
+    }
 
-  let countPromise = Review.count(query);
+    newSearchTermPromise = Promise.all([placesPromise, ownersPromise])
+      .spread((places, owners) => {
+        // places
+        if (placeSearchWordWrapper) {
+          let placeIds = _.pluck(places, 'id');
+          var placeIndex = _.findIndex(query.where.or, { place: { contains: placeSearchWord } });
+          query.where.or.splice(placeIndex, 1, { place: placeIds });
+        }
+        // owners
+        if (ownerSearchWordWrapper) {
+          let ownerIds = _.pluck(owners, 'id');
+          var ownerIndex = _.findIndex(query.where.or, { owner: { contains: ownerSearchWord } });
+          query.where.or.splice(ownerIndex, 1, { owner: ownerIds });
+        }
+      });
 
-  return Promise.all([reviewFind, countPromise])
+  } else {
+    newSearchTermPromise = Promise.resolve();
+  }
+  //====================================================
+  // REFACTOR Nested Search Term ends
+  //====================================================
+  newSearchTermPromise
+    .then(() => {
+      let reviewFind = Review.find(query);
+      _.forEach(populate, (populateProp) => {
+        if (typeof populateProp === 'string') {
+          reviewFind = reviewFind.populate(populateProp);
+        } else {
+          reviewFind = reviewFind.populate(populateProp.property, populateProp.criteria);
+        }
+      });
+
+      let countPromise = Review.count(query);
+
+      return Promise.all([reviewFind, countPromise]);
+
+    })
     .spread((reviews, count) => {
       let more = (reviews[query.limit - 1]) ? true : false;
       if (more) {
@@ -151,7 +216,7 @@ function findOne(req, res) {
     });
 }
 
-function update(req, res) {
+function updateReview(req, res) {
   let queryWrapper = QueryService.buildQuery(req);
   sails.log("queryWrapper --Review.update-- :::\n", queryWrapper);
   let query = queryWrapper.query;
@@ -160,11 +225,11 @@ function update(req, res) {
   delete query.id;
 
   if (!QueryService.checkParamPassed(id)) {
-    return res.badRequest({ message: "id" });
+    return res.badRequest({ message: "!id" });
   }
 
   let propertiesAllowedToUpdate = [
-    'rating', 'content', 'photos'
+    'rating', 'content', 'photos', 'place'
   ];
   let propertiesToUpdate = {};
   _.forEach(propertiesAllowedToUpdate, (property) => {
@@ -176,10 +241,30 @@ function update(req, res) {
   return Review.update({ id: id }, propertiesToUpdate)
     .then((reviews) => {
       let review = reviews[0];
-      return Review.findOne({ id: review.id })
-        .populate('photos');
+      let placeFindOne = Place.findOne({
+          id: review.place
+        })
+        .populate('reviews');
+
+      return [placeFindOne, review];
     })
-    .then((review) => {
+    .spread((place, review) => {
+      let ratings = _.pluck(place.reviews, 'rating'); // place.reviews emmute?
+      // Mean start
+      let ratingTotal = _.reduce(ratings, (mem, rating) => {
+        return mem + rating;
+      }, 0);
+      let ratingAverage = ratingTotal / (ratings.length || 1);
+      // Mean end
+      let placeUpdate = Place.update({
+        id: place.id
+      }, {
+        averageRating: ratingAverage
+      });
+      sails.log("ratingAverage :::\n", ratingAverage);
+      return [review, placeUpdate];
+    })
+    .spread((review) => {
       return res.ok(review);
     })
     .catch((err) => {
@@ -190,14 +275,14 @@ function update(req, res) {
 
 // Associations to Delete
 // photos, comments
-function destroy(req, res) {
+function destroyReview(req, res) {
   var queryWrapper = QueryService.buildQuery(req);
   sails.log("queryWrapper --Review.destroy-- :::\n", queryWrapper);
   var query = queryWrapper.query;
 
   var id = query.where.id;
   if (!QueryService.checkParamPassed(id)) {
-    return res.send(400, { message: "id" });
+    return res.send(400, { message: "!id" });
   }
 
   return Review.findOne({ id: id })
@@ -208,17 +293,41 @@ function destroy(req, res) {
         return Promise.reject({ message: 'no review' });
       }
       let photoIds = _.pluck(review.photos, 'id');
-      let photos = ImageService.destoryPhotos(photoIds);
+      let photos = ImageService.destroyPhotos(photoIds);
 
       let commentIds = _.pluck(review.comments, 'id');
       let comments = Comment.destroy({ id: commentIds });
 
-      let reviews = Review.destory({ id: review.id });
+      let reviews = Review.destroy({ id: review.id });
 
       return [reviews, comments, photos];
     })
     .spread((reviews) => {
       let review = reviews[0];
+      let placeFindOne = Place.findOne({
+          id: review.place
+        })
+        .populate('reviews');
+
+      return [placeFindOne, review];
+    })
+    .spread((place, review) => {
+      let ratings = _.pluck(place.reviews, 'rating'); // place.reviews emmute?
+      // Mean start
+      let ratingTotal = _.reduce(ratings, (mem, rating) => {
+        return mem + rating;
+      }, 0);
+      let ratingAverage = ratingTotal / (ratings.length || 1);
+      // Mean end
+      let placeUpdate = Place.update({
+        id: place.id
+      }, {
+        averageRating: ratingAverage
+      });
+      sails.log("ratingAverage :::\n", ratingAverage);
+      return [review, placeUpdate];
+    })
+    .spread((review) => {
       return res.ok(review);
     })
     .catch((err) => {

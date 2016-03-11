@@ -32,8 +32,8 @@ module.exports = {
       type: 'STRING'
     },
     // '헌팅', '데이트', '단체', '술마시기좋은', '안주가맛있는'
-    themes: { // search using contains
-      type: 'ARRAY'
+    theme: { // search using contains
+      type: 'String'
     },
     // '포차/호프', 'Pub', 'Bar/라운지', '이자카야'
     // 'Beer', '와인', '전통주점', '퓨전주점', 
@@ -98,9 +98,12 @@ module.exports = {
       type: 'BOOLEAN'
     },
 
-    events: { // <Array>{eventTitle: String, eventContent: string}
-      type: 'ARRAY'
+    eventContent: {
+      type: 'STRING'
     },
+    // events: { // Array<{eventTitle: String, eventContent: string}>
+    //   type: 'ARRAY'
+    // },
 
     reviewCount: {
       type: 'INTEGER',
@@ -119,15 +122,14 @@ module.exports = {
       collection: 'Photo',
       via: 'place'
     },
-
-    reviews: {
-      collection: 'Review',
-      via: 'place'
-    },
-
     // 메뉴
     products: {
       collection: 'Product',
+      via: 'place'
+    },
+
+    reviews: {
+      collection: 'Review',
       via: 'place'
     },
 

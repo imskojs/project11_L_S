@@ -21,6 +21,10 @@ module.exports = {
       defaultsTo: false
     },
 
+    category: { // POST-COMMENT, REVIEW-COMMENT
+      type: 'STRING'
+    },
+
     post: {
       model: 'Post'
     },
@@ -28,6 +32,7 @@ module.exports = {
     review: {
       model: 'Review'
     },
+
     //====================================================
     //  Not used just incase
     //====================================================

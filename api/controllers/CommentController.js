@@ -1,31 +1,17 @@
+/* jshint ignore:start */
 'use strict';
 const Promise = require('bluebird');
+/* jshint ignore:end */
 const _ = require('lodash');
 
 module.exports = {
-  create: create,
   find: find,
   findOne: findOne,
-  update: update,
-  destroy: destroy,
+  createComment: createComment,
+  updateComment: updateComment,
+  destroyComment: destroyComment,
 };
 
-function create(req, res) {
-  let queryWrapper = QueryService.buildQuery(req);
-  sails.log("queryWrapper --Comment.create-- :::\n", queryWrapper);
-  let query = queryWrapper.query;
-  if (!QueryService.checkParamPassed(query.content)) {
-    return res.badRequest(400, { message: "!content" });
-  }
-
-  return Comment.create(query)
-    .then((comment) => {
-      return res.send(200, comment);
-    })
-    .catch((err) => {
-      return res.negotiate(err);
-    });
-}
 
 function find(req, res) {
   let queryWrapper = QueryService.buildQuery(req);
@@ -66,7 +52,7 @@ function findOne(req, res) {
     return res.send(400, { message: "!id" });
   }
 
-  let commentPromise = Comment.find(query);
+  let commentPromise = Comment.findOne(query);
 
   QueryService.applyPopulate(commentPromise, populate);
 
@@ -82,8 +68,49 @@ function findOne(req, res) {
     });
 }
 
+function createComment(req, res) {
+  let queryWrapper = QueryService.buildQuery(req);
+  sails.log("queryWrapper --Comment.createComment-- :::\n", queryWrapper);
+  let query = queryWrapper.query;
+  if (!QueryService.checkParamPassed(query.content, query.category)) {
+    return res.badRequest(400, { message: "!content||!category" });
+  }
 
-function update(req, res) {
+  return Comment.create(query)
+    .then((comment) => {
+      let postPromise;
+      if (comment.post) {
+        postPromise = Post.findOne({
+            id: comment.post
+          })
+          .populate('comments');
+      }
+      return [comment, postPromise];
+    })
+    .spread((comment, post) => {
+      let commentCount;
+      let postUpdate;
+      if (post) {
+        commentCount = post.comments.length;
+        postUpdate = Post.update({
+          id: post.id
+        }, {
+          commentCount: commentCount
+        });
+
+      }
+      return [comment, postUpdate];
+    })
+    .spread((comment) => {
+      return res.ok(comment);
+    })
+    .catch((err) => {
+      return res.negotiate(err);
+    });
+}
+
+
+function updateComment(req, res) {
   let queryWrapper = QueryService.buildQuery(req);
   sails.log("queryWrapper --Comment.update-- :::\n", queryWrapper);
 
@@ -95,7 +122,9 @@ function update(req, res) {
     return res.badRequest({ message: "!id" });
   }
 
-  let propertiesAllowedToUpdate = ['content'];
+  let propertiesAllowedToUpdate = [
+    'content', 'isAnnonymous', 'category', 'post', 'review', 'updatedBy'
+  ];
   let propertiesToUpdate = {};
   _.forEach(propertiesAllowedToUpdate, (property) => {
     if (query[property]) {
@@ -115,10 +144,12 @@ function update(req, res) {
     });
 }
 
-function destroy(req, res) {
+function destroyComment(req, res) {
   let queryWrapper = QueryService.buildQuery(req);
   sails.log("queryWrapper --Comment.destory-- :::\n", queryWrapper);
+
   let id = queryWrapper.query.where.id;
+
   if (!QueryService.checkParamPassed(id)) {
     return res.send(400, { message: "!id" });
   }
@@ -128,6 +159,29 @@ function destroy(req, res) {
     })
     .then(function(comments) {
       let comment = comments[0];
+      let postPromise;
+      if (comment.post) {
+        postPromise = Post.findOne({
+            id: comment.post
+          })
+          .populate('comments');
+      }
+      return [comment, postPromise];
+    })
+    .spread((comment, post) => {
+      let commentCount;
+      let postUpdate;
+      if (post) {
+        commentCount = post.comments.length;
+        postUpdate = Post.update({
+          id: post.id
+        }, {
+          commentCount: commentCount
+        });
+      }
+      return [comment, postUpdate];
+    })
+    .spread((comment) => {
       return res.ok(comment);
     })
     .catch(function(err) {

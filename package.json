@@ -70,7 +70,6 @@
     "karma-jasmine": "^0.3.6",
     "karma-mocha": "^0.2.0",
     "karma-requirejs": "^0.2.2",
-    "lodash": "^3.10.0",
     "mocha": "^2.x.x",
     "request": "^2.58.0",
     "requirejs": "^2.1.19",
