@@ -25,6 +25,11 @@ module.exports = {
       defaultsTo: false
     },
 
+    isAnnonymous: {
+      type: 'BOOLEAN',
+      defaultsTo: false
+    },
+
     content: {
       type: 'STRING'
     },

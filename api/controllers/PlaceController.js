@@ -71,6 +71,8 @@ function findNative(req, res) {
   let skip = queryWrapper.query.skip;
   let limit = queryWrapper.query.limit + 1;
   let populate = queryWrapper.populate;
+  sails.log("query.geoJSON['$near'] :::\n", query.geoJSON['$near']);
+  sails.log("query :::\n", query);
 
 
   let PlaceNative = Promise.promisify(Place.native);
@@ -96,6 +98,7 @@ function findNative(req, res) {
       return deferred.promise;
     })
     .then((nativePlaces) => {
+      sails.log("nativePlaces :::\n", nativePlaces);
       let ids = _.map(nativePlaces, (nativePlace) => {
         let id = nativePlace._id.toString();
         return id;
