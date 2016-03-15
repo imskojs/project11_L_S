@@ -28,7 +28,8 @@ module.exports.routes = {
   //  Review
   //====================================================
   'POST /review/createReview': 'ReviewController.createReview',
-  'GET /review/find': 'ReviewController.find',
+  'GET /review/find': 'ReviewController.find', // admin
+  // 'GET /review/findReview': 'ReviewController.findReview', // client 
   'GET /review/findOne': 'ReviewController.findOne',
   'PUT /review/updateReview': 'ReviewController.updateReview',
   'DELETE /review/destroyReview': 'ReviewController.destroyReview',

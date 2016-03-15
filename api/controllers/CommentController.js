@@ -72,8 +72,8 @@ function createComment(req, res) {
   let queryWrapper = QueryService.buildQuery(req);
   sails.log("queryWrapper --Comment.createComment-- :::\n", queryWrapper);
   let query = queryWrapper.query;
-  if (!QueryService.checkParamPassed(query.content, query.category)) {
-    return res.badRequest(400, { message: "!content||!category" });
+  if (!QueryService.checkParamPassed(query.content, query.category, query.post)) {
+    return res.badRequest(400, { message: "!content||!category||!post" });
   }
 
   return Comment.create(query)
@@ -102,7 +102,14 @@ function createComment(req, res) {
       return [comment, postUpdate];
     })
     .spread((comment) => {
-      return res.ok(comment);
+      return Comment.find({
+        post: comment.post
+      });
+    })
+    .then((comments) => {
+      return res.ok({
+        comments: comments
+      });
     })
     .catch((err) => {
       return res.negotiate(err);

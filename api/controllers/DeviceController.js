@@ -50,7 +50,7 @@ function register(req, res) {
     }, device)
     .then((createdDevice) => {
       return res.ok({
-        deivce: createdDevice
+        device: createdDevice
       });
     })
     .catch((err) => {

@@ -15,7 +15,7 @@ module.exports.connections = {
   },
 
   gcm: gcm.gcm({
-    apiKey: 'googleKey'
+    apiKey: 'AIzaSyBBBrQr0cGRpkAUA1_IsmRjZVQg60QOvK0'
   }),
 
   apnConfig: {

@@ -68,11 +68,23 @@ function findNative(req, res) {
   // }
   // }
   let query = queryWrapper.query.where;
+
+  // if search
+  if (query.searchWord) {
+    let searchWord = query.searchWord;
+    delete query.searchWord;
+    let searchRegExp = new RegExp(searchWord, 'i');
+    query.$or = [{
+      name: searchRegExp
+    }, {
+      tagString: searchRegExp
+    }];
+  }
+
   let skip = queryWrapper.query.skip;
   let limit = queryWrapper.query.limit + 1;
   let populate = queryWrapper.populate;
-  sails.log("query.geoJSON['$near'] :::\n", query.geoJSON['$near']);
-  sails.log("query :::\n", query);
+  sails.log("query --processed query.where-- :::\n", query);
 
 
   let PlaceNative = Promise.promisify(Place.native);
