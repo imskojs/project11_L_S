@@ -14,8 +14,9 @@ module.exports = {
 };
 
 function pushAll(req, res) {
-  let title = req.params.title;
-  let message = req.params.message;
+  let query = req.allParams();
+  let title = query.title;
+  let message = query.message;
   sails.log("title, message --Device.pushAll-- :::\n", title, message);
 
   if (!QueryService.checkParamPassed(title, message)) {
