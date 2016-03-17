@@ -31,8 +31,28 @@ function find(req, res) {
       if (more) {
         comments.splice(query.limit - 1, 1);
       }
+      let usersPromise = _.map(comments, (comment) => {
+        let owner;
+        if (typeof comment.owner === 'string') {
+          owner = comment.owner;
+        } else {
+          owner = comment.owner && comment.owner.id;
+        }
+        return User.findOne({
+            id: owner
+          })
+          .populate('profilePhoto');
+      });
+      return [comments, Promise.all(usersPromise), more, count];
+    })
+    .spread((comments, users, more, count) => {
+      let pojoComments = _.map(comments, (comment, i) => {
+        var pojoComment = comment.toObject();
+        pojoComment.owner = users[i];
+        return pojoComment;
+      });
       return res.ok({
-        comments: comments,
+        comments: pojoComments,
         more: more,
         total: count
       });
@@ -72,22 +92,23 @@ function createComment(req, res) {
   let queryWrapper = QueryService.buildQuery(req);
   sails.log("queryWrapper --Comment.createComment-- :::\n", queryWrapper);
   let query = queryWrapper.query;
-  if (!QueryService.checkParamPassed(query.content, query.category, query.post)) {
-    return res.badRequest(400, { message: "!content||!category||!post" });
+  if (!QueryService.checkParamPassed(query.content, query.category)) {
+    return res.send(400, { message: "!content||!category" });
   }
+  let category = query.category;
 
   return Comment.create(query)
-    .then((comment) => {
+    .then((createdComment) => {
       let postPromise;
-      if (comment.post) {
+      if (category === 'POST-COMMENT') {
         postPromise = Post.findOne({
-            id: comment.post
+            id: createdComment.post
           })
           .populate('comments');
       }
-      return [comment, postPromise];
+      return [createdComment, postPromise];
     })
-    .spread((comment, post) => {
+    .spread((createdComment, post) => {
       let commentCount;
       let postUpdate;
       if (post) {
@@ -97,18 +118,45 @@ function createComment(req, res) {
         }, {
           commentCount: commentCount
         });
-
       }
-      return [comment, postUpdate];
+      return [createdComment, postUpdate];
     })
-    .spread((comment) => {
-      return Comment.find({
-        post: comment.post
-      });
+    .spread((createdComment) => {
+      if (category === 'POST-COMMENT') {
+        return Comment.find({
+          where: {
+            post: createdComment.post
+          },
+          sort: 'id DESC'
+        });
+      } else if (category === 'REVIEW-COMMENT') {
+        return Comment.find({
+          where: {
+            review: createdComment.review
+          },
+          sort: 'id DESC'
+        });
+      } else {
+        sails.log("'no category' :::\n", 'no category');
+      }
     })
     .then((comments) => {
+      let usersPromise = _.map(comments, (comment) => {
+        return User.findOne({
+            id: comment.owner
+          })
+          .populate('profilePhoto');
+      });
+      return [comments, Promise.all(usersPromise)];
+    })
+    .spread((comments, users) => {
+      let pojoComments = _.map(comments, (comment, i) => {
+        var pojoComment = comment.toObject();
+        pojoComment.owner = users[i];
+        return pojoComment;
+      });
       return res.ok({
-        comments: comments
+        comments: pojoComments
       });
     })
     .catch((err) => {
@@ -152,10 +200,12 @@ function updateComment(req, res) {
 }
 
 function destroyComment(req, res) {
-  let queryWrapper = QueryService.buildQuery(req);
-  sails.log("queryWrapper --Comment.destory-- :::\n", queryWrapper);
+  let query = req.allParams();
+  let id = query.id;
+  // let queryWrapper = QueryService.buildQuery(req);
+  // sails.log("queryWrapper --Comment.destory-- :::\n", queryWrapper);
 
-  let id = queryWrapper.query.where.id;
+  // let id = queryWrapper.query.where.id;
 
   if (!QueryService.checkParamPassed(id)) {
     return res.send(400, { message: "!id" });

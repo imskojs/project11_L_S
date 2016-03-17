@@ -1,8 +1,10 @@
 //====================================================
 //  Touched by Ko
 //====================================================
+/* jshint ignore:start */
 'use strict';
 const Promise = require('bluebird');
+/* jshint ignore:end */
 const _ = require('lodash');
 
 module.exports = {
@@ -118,10 +120,11 @@ function update(req, res) {
 }
 
 function destroy(req, res) {
-  let queryWrapper = QueryService.buildQuery(req);
-  sails.log("queryWrapper --Event.destroy-- :::\n", queryWrapper);
-  let query = queryWrapper.query;
-  let id = query.where.id;
+  let query = req.allParams();
+  // let queryWrapper = QueryService.buildQuery(req);
+  // sails.log("queryWrapper --Event.destroy-- :::\n", queryWrapper);
+  // let query = queryWrapper.query;
+  let id = query.id;
 
   if (!QueryService.checkParamPassed(id)) {
     return res.send(400, { message: "!id" });

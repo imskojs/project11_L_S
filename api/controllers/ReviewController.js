@@ -69,7 +69,8 @@ function createReview(req, res) {
       let placeUpdate = Place.update({
         id: place.id
       }, {
-        averageRating: ratingAverage
+        averageRating: ratingAverage,
+        reviewCount: place.reviews.length
       });
       return [review, placeUpdate];
     })
@@ -276,11 +277,13 @@ function updateReview(req, res) {
 // Associations to Delete
 // photos, comments
 function destroyReview(req, res) {
-  var queryWrapper = QueryService.buildQuery(req);
-  sails.log("queryWrapper --Review.destroy-- :::\n", queryWrapper);
-  var query = queryWrapper.query;
+  let query = req.allParams();
+  let id = query.id;
+  // var queryWrapper = QueryService.buildQuery(req);
+  // sails.log("queryWrapper --Review.destroy-- :::\n", queryWrapper);
+  // var query = queryWrapper.query;
 
-  var id = query.where.id;
+  // var id = query.where.id;
   if (!QueryService.checkParamPassed(id)) {
     return res.send(400, { message: "!id" });
   }
@@ -322,7 +325,8 @@ function destroyReview(req, res) {
       let placeUpdate = Place.update({
         id: place.id
       }, {
-        averageRating: ratingAverage
+        averageRating: ratingAverage,
+        reviewCount: place.reviews.length
       });
       sails.log("ratingAverage :::\n", ratingAverage);
       return [review, placeUpdate];

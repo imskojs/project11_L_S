@@ -1,12 +1,16 @@
 //====================================================
 //  Touched by Ko 2.16
 //====================================================
+/* jshint ignore:start */
 'use strict';
+/* jshint ignore:end */
 
 module.exports = {
   pushAll: pushAll,
   register: register,
-  update: update
+  update: update,
+  pushOff: pushOff,
+  pushOn: pushOn
 };
 
 function pushAll(req, res) {
@@ -35,6 +39,37 @@ function pushAll(req, res) {
     });
 }
 
+// empty
+function pushOff(req, res) {
+  if (!req.user) {
+    return res.badRequest({ message: '!loggedIn' });
+  }
+  return Device.update({ user: req.user.id }, { active: false })
+    .then(function(devices) {
+      return res.ok({
+        devices: devices
+      });
+    })
+    .catch(function(err) {
+      return res.badRequest(err);
+    });
+}
+
+function pushOn(req, res) {
+  if (!req.user) {
+    return res.badRequest({ message: '!loggedIn' });
+  }
+  return Device.update({ user: req.user.id }, { active: true })
+    .then(function(devices) {
+      return res.ok({
+        devices: devices
+      });
+    })
+    .catch(function(err) {
+      return res.badRequest(err);
+    });
+}
+
 function register(req, res) {
   var device = req.allParams();
   sails.log("device --Device.register-- :::\n", device);
@@ -59,6 +94,7 @@ function register(req, res) {
 }
 
 
+// {deviceId, etc}
 function update(req, res) {
   var device = req.allParams();
   sails.log("device --Device.update-- :::\n", device);

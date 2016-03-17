@@ -1,8 +1,10 @@
 //====================================================
 //  Touched by Ko 2.16
 //====================================================
+/* jshint ignore:start */
 'use strict';
 const Promise = require('bluebird');
+/* jshint ignore:end */
 const _ = require('lodash');
 
 module.exports = {
@@ -17,13 +19,14 @@ module.exports = {
 };
 
 
+// place, owner
 function createPlace(req, res) {
   let queryWrapper = QueryService.buildQuery(req);
   sails.log("queryWrapper --Favorite.createPlace-- :::\n", queryWrapper);
   let query = queryWrapper.query;
 
-  if (!QueryService.checkParamPassed(query.place, query.owner)) {
-    return res.badRequest({ message: '!place || !owner' });
+  if (!QueryService.checkParamPassed(query.place)) {
+    return res.badRequest({ message: '!place' });
   }
 
   return Favorite.find({
@@ -71,12 +74,13 @@ function createPlace(req, res) {
 // Associations to Delete
 // photos, comments
 function destroy(req, res) {
-  var queryWrapper = QueryService.buildQuery(req);
-  sails.log("queryWrapper --Favorite.destroy-- :::\n", queryWrapper);
-  var query = queryWrapper.query;
+  var query = req.allParams();
+  // var queryWrapper = QueryService.buildQuery(req);
+  // sails.log("queryWrapper --Favorite.destroy-- :::\n", queryWrapper);
+  // var query = queryWrapper.query;
 
-  if (!QueryService.checkParamPassed(query.where.place, req.user)) {
-    return res.send(400, { message: "!place || !user" });
+  if (!QueryService.checkParamPassed(query.place, req.user)) {
+    return res.send(400, { message: "!place || !loggedIn" });
   }
 
   return Favorite.destroy(query)
@@ -127,7 +131,7 @@ function find(req, res) {
   let query = queryWrapper.query;
   let populate = queryWrapper.populate;
 
-  if (!QueryService.checkParamPassed(query.owner)) {
+  if (!QueryService.checkParamPassed(query.where.owner)) {
     return res.badRequest({ message: '!owner' });
   }
 

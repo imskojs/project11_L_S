@@ -66,7 +66,9 @@ module.exports.policies = {
   ],
 
   UserController: {
+    findOne: true,
     contactAdmin: true,
-    ask: true
+    ask: true,
+    sendEmail: true
   }
 };

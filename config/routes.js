@@ -38,6 +38,7 @@ module.exports.routes = {
   //====================================================
   //  Favorite
   //====================================================
+  'POST /favorite/find': 'FavoriteController.find',
   'POST /favorite/createPlace': 'FavoriteController.createPlace',
   'DELETE /favorite/destroy': 'FavoriteController.destroy',
   //====================================================
@@ -81,10 +82,12 @@ module.exports.routes = {
   //====================================================
   'POST /user/login': 'AuthController.login',
   'POST /user/loginWithOauth': 'AuthController.registerPassport',
+  'GET /user/find': 'UserController.find',
   'GET /user/findOne': 'UserController.findOne',
   'PUT /user/update': 'UserController.update',
   'POST /email/admin': 'UserController.contactAdmin',
   'POST /email/ask': 'UserController.ask',
+  'POST /user/sendEmail': 'UserController.sendEmail',
   //====================================================
   //  Event
   //====================================================
@@ -97,8 +100,10 @@ module.exports.routes = {
   //  Device
   //====================================================
   'POST /device/register': 'DeviceController.register',
-  'GET /device/push': 'DeviceController.pushAll',
+  'GET /device/pushAll': 'DeviceController.pushAll',
   'PUT /device/update': 'DeviceController.update',
+  'PUT /device/pushOn': 'DeviceController.pushOn',
+  'PUT /device/pushOff': 'DeviceController.pushOff',
 
 
 
@@ -128,7 +133,7 @@ module.exports.routes = {
   'PUT /me': 'UserController.updateMyInfo',
 
   // User authentication service
-  'GET /user/find': 'UserController.find',
+  // 'GET /user/find': 'UserController.find',
   'GET /user/findNative': 'UserController.findNative',
   // 'GET /user/findOne': 'UserController.findOne',
 

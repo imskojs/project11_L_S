@@ -219,7 +219,7 @@ module.exports.users = {
       // Photo
       {"name": 'USER 사진 읽기', "model": 'Photo', "action": 'read', "relation": 'role'},
       {"name": 'USER 사진 쓰기', "model": 'Photo', "action": 'create', "relation": 'role'},
-      {"name": 'USER 사진 수정', "model": 'Photo', "action": 'update', "relation": 'owner'},
+      {"name": 'USER 사진 수정', "model": 'Photo', "action": 'update', "relation": 'role'},
       {"name": 'USER 사진 지우기', "model": 'Photo', "action": 'delete', "relation": 'owner'},
 
       // Post

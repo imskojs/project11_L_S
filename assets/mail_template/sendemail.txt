@@ -1,0 +1,105 @@
+[<%= data.type %>]  <%= data.title %>
+----------
+
+<%= data.email ? '이메일: ' + data.email : '' %>
+
+<%= data.contact ? '연락처: ' + data.contact : '' %>
+
+<%= data.placeContact ? '주점 연락처: ' + data.placeContact : '' %>
+
+<%= data.userName ? '신청자 성함: ' + data.userName : '' %>
+
+<%= data.userContact ? '신청자 연락처: ' + data.userContact : '' %>
+
+<%= data.title ? '제목: ' + data.title : '' %>
+
+<%= data.content ? '내용: ' + data.content : '' %>
+
+<%= data.placeName ? '상호명: ' + data.placeName : '' %>
+
+<%= data.location ? '지역: ' + data.location : '' %>
+
+<%= data.options && data.options.placeId ? '장소아이디: ' + data.options.placeId : '' %>
+<%= data.options && data.options.information ? '수정사유1: ' + data.options.information : '' %>
+<%= data.options && data.options.menuAndPrice ? '수정사유2: ' + data.options.menuAndPrice : '' %>
+<%= data.options && data.options.eventAndDiscount ? '수정사유3: ' + data.options.eventAndDiscount : '' %>
+<%= data.options && data.options.stateChange ? '수정사유4: ' + data.options.stateChange : '' %>
+<%= data.options && data.options.other ? '수정사유5: ' + data.options.other : '' %>
+
+이상입니다
+
+html:
+<div style="background: #e6ebfc">
+  <img style="width: 100%; display:block" src='cid:applicat-mailheader'/>
+  <div style="padding: 50px 30%; font-size: 1.2em; color:black;">
+
+    <div style="width:100%; text-align: center; font-size: 1.2em; font-weight: bold;">
+      <%= data.type %>     
+    </div>
+    <br/>
+      <span style="color:black">
+        <%= data.email ? '이메일: ' + data.email : '' %>
+      </span>
+    <br/>
+      <span style="color:black">
+        <%= data.contact ? '연락처: ' + data.contact : '' %>
+      </span>
+    <br/>
+      <span style="color:black">
+        <%= data.placeContact ? '주점 연락처: ' + data.placeContact : '' %>
+      </span>
+    <br/>
+      <span style="color:black">
+        <%= data.userName ? '신청자 성함: ' + data.userName : '' %>
+      </span>
+    <br/>
+      <span style="color:black">
+        <%= data.userContact ? '신청자 연락처: ' + data.userContact : '' %>
+      </span>
+    <br/>
+      <span style="color:black">
+        <%= data.title ? '제목: ' + data.title : '' %>
+      </span>
+    <br/>
+      <span style="color:black">
+        <%= data.content ? '내용: ' + data.content : '' %>
+      </span>
+    <br/>
+      <span style="color:black">
+        <%= data.placeName ? '상호명: ' + data.placeName : '' %>
+      </span>
+    <br/>
+      <span style="color:black">
+        <%= data.location ? '지역: ' + data.location : '' %>
+      </span>
+    <br/>
+      <span style="color:black">
+        <%= data.options && data.options.placeId ? '장소아이디: ' + data.options.placeId : '' %>
+      </span>
+    <br/>
+      <span style="color:black">
+        <%= data.options && data.options.information ? '수정사유1: ' + data.options.information : '' %>
+      </span>
+    <br/>
+      <span style="color:black">
+        <%= data.options && data.options.menuAndPrice ? '수정사유2: ' + data.options.menuAndPrice : '' %>
+      </span>
+    <br/>
+      <span style="color:black">
+        <%= data.options && data.options.eventAndDiscount ? '수정사유3: ' + data.options.eventAndDiscount : '' %>
+      </span>
+    <br/>
+      <span style="color:black">
+        <%= data.options && data.options.stateChange ? '수정사유4: ' + data.options.stateChange : '' %>
+      </span>
+    <br/>
+      <span style="color:black">
+        <%= data.options && data.options.other ? '수정사유5: ' + data.options.other : '' %>
+      </span>
+    <br/>
+    <br/>
+  </div>
+  <img style="width: 100%; display:block" src='cid:applicat-mailfooter'/>
+  <br/>
+</div>
+

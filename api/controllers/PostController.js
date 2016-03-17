@@ -121,10 +121,13 @@ function update(req, res) {
 }
 
 function destroy(req, res) {
-  let queryWrapper = QueryService.buildQuery(req);
-  sails.log("queryWrapper --Post.destroy-- :::\n", queryWrapper);
-  let query = queryWrapper.query;
-  let id = query.where.id;
+  let query = req.allParams();
+  let id = query.id;
+  sails.log("query :::\n", query);
+  // let queryWrapper = QueryService.buildQuery(req);
+  // sails.log("queryWrapper --Post.destroy-- :::\n", queryWrapper);
+  // let query = queryWrapper.query;
+  // let id = query.where.id;
 
   if (!QueryService.checkParamPassed(id)) {
     return res.send(400, { message: "!id" });

@@ -1,7 +1,9 @@
 //====================================================
 //  Touched by Ko 2.16
 //====================================================
+/* jshint ignore:start */
 'use strict';
+/* jshint ignore:end */
 const apn = require('apn');
 const _ = require('lodash');
 

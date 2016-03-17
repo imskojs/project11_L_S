@@ -1,8 +1,10 @@
 //====================================================
 //  Touched by Ko 2.16
 //====================================================
+/* jshint ignore:start */
 'use strict';
 const Promise = require('bluebird');
+/* jshint ignore:end */
 const _ = require('lodash');
 
 module.exports = {
@@ -21,7 +23,7 @@ function create(req, res) {
   return Message.create(query)
     .then((message) => {
       return [
-        Device.find({ user: message.receiver }),
+        Device.find({ user: message.receiver, active: true }),
         User.findOne({ id: message.sender })
       ];
     })
@@ -89,33 +91,42 @@ function find(req, res) {
   return Message.find(query)
     .then((messages) => {
       let usersPromise = _.map(messages, (message) => {
-        return User.findOne({
+        let senderPromise = User.findOne({
             id: message.sender
           })
           .populate('profilePhoto');
+        let receiverPromise = User.findOne({
+          id: message.receiver
+        });
+        return Promise.all([senderPromise, receiverPromise]);
       });
       return [messages, Promise.all(usersPromise)];
     })
     .spread((messages, users) => {
+      // users = [[sender, receiver], ... [sender, receiver]]
       _.forEach(messages, (message, i) => {
-        message.sender = users[i];
+        message.sender = users[i][0];
+        message.receiver = users[i][1];
       });
+
+      // send
+      res.ok({ messages: messages });
+
+      sails.log("'updatingMessages' :::\n", 'updatingMessages');
       let messageUpdate;
-      if (userId === query.receiver) {
+      if (userId === query.where.or[0].receiver) {
         messageUpdate = Message.update({
-          sender: query.sender,
-          receiver: query.receiver,
+          sender: query.where.or[0].sender,
+          receiver: query.where.or[0].receiver,
           isNew: true
         }, {
           isNew: false
         });
       }
-      return [messages, messageUpdate];
+      return messageUpdate;
     })
-    .spread((messages) => {
-      return res.ok({
-        messages: messages
-      });
+    .then((updatedMessages) => {
+      sails.log("updatedMessages :::\n", updatedMessages);
     })
     .catch((err) => {
       return res.negotiate(err);
@@ -126,16 +137,18 @@ function findUnique(req, res) {
   let queryWrapper = QueryService.buildQuery(req);
   sails.log("queryWrapper --Message.findUnique-- :::\n", queryWrapper);
   let query = queryWrapper.query;
-  if (!query.where.sender) {
-    query.where.sender = req.user.id;
-  }
+  // if (!query.where.sender) {
+  //   query.where.sender = req.user.id;
+  // }
   //{where: {receiver: req.user.id}, sort: 'id DESC'}
   return Message.find(query)
     .then((preMessages) => {
-      let messages = _.uniqBy(preMessages, 'sender');
+      sails.log("preMessages :::\n", preMessages);
+      let messages = _.uniq(preMessages, 'sender');
+      sails.log("messages :::\n", messages);
       let usersPromise = _.map(messages, (message) => {
         return User.findOne({
-            id: message.receiver
+            id: message.sender
           })
           .populate('profilePhoto');
       });
@@ -143,7 +156,7 @@ function findUnique(req, res) {
     })
     .spread((messages, users) => {
       _.forEach(messages, (message, i) => {
-        message.receiver = users[i];
+        message.sender = users[i];
       });
       return messages;
     })

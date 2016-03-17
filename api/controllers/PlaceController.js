@@ -6,6 +6,7 @@
 var Promise = require('bluebird');
 /* jshint ignore:end */
 
+var ObjectID = require('mongodb').ObjectID;
 var _ = require('lodash');
 module.exports = {
   create: create,
@@ -22,6 +23,12 @@ function create(req, res) {
   let queryWrapper = QueryService.buildQuery(req);
   sails.log("queryWrapper --Place.create-- :::\n", queryWrapper);
   let query = queryWrapper.query; // query.photos = ['asdf', 'asdf']
+
+  if (query.setOwner) {
+    query.owner = query.setOwner;
+  }
+  delete query.setOwner;
+
   return Place.create(query)
     .then((place) => {
       return Place.findOne({
@@ -57,7 +64,7 @@ function findNative(req, res) {
   //       }
   //     },
   //     category: 'PREMIUM' || 'SPECIAL' || 'NORMAL'
-  //       // tags: {$in: tags }, 
+  //     keywords: {$in: keywords }, 
   //       // filter = new RegExp([filter].join(""), "i");
   //       // $or: [{'name': filter }, {'description': filter }, {'createdBy': filter }],
   //       // id: {$gt: someId }, id: {$lt: someId }
@@ -79,6 +86,18 @@ function findNative(req, res) {
     }, {
       tagString: searchRegExp
     }];
+  }
+
+  if (query.id) {
+    if (!Array.isArray(query.id)) {
+      query.id = [query.id];
+    }
+    query._id = {
+      $in: _.map(query.id, (id) => {
+        return ObjectID(id);
+      })
+    };
+    delete query.id;
   }
 
   let skip = queryWrapper.query.skip;
@@ -193,9 +212,7 @@ function findOne(req, res) {
   let populate = queryWrapper.populate;
 
   if (!QueryService.checkParamPassed(query.where.id)) {
-    return res.send(400, {
-      message: "id"
-    });
+    return res.send(400, { message: "!id" });
   }
 
   let placePromise = Place.findOne(query);
@@ -209,6 +226,9 @@ function findOne(req, res) {
 
   return placePromise
     .then((place) => {
+      if (!place) {
+        return Promise.reject({ message: '!place' });
+      }
       place.viewCount = place.viewCount + 1;
       let deferred = Promise.pending();
       place.save((err) => {
@@ -243,7 +263,7 @@ function update(req, res) {
   let propertiesAllowedToUpdate = [
     'photos', 'name', 'tagString', 'tags', 'category', 'province', 'theme', 'keywords',
     'address', 'geoJSON', 'hours', 'size', 'summary', 'showDiscountTag', 'discountTitle',
-    'discountContent', 'showEventTag', 'eventContent', 'phone'
+    'discountContent', 'showEventTag', 'eventContent', 'phone', 'owner'
   ];
   let propertiesToUpdate = {};
   _.forEach(propertiesAllowedToUpdate, (property) => {
@@ -270,11 +290,12 @@ function update(req, res) {
 // Associations to Delete
 //products, reviews, photos
 function destroy(req, res) {
-  let queryWrapper = QueryService.buildQuery(req);
-  sails.log("queryWrapper --Place.destory-- :::\n", queryWrapper);
-  let query = queryWrapper.query;
+  let query = req.allParams();
+  // let queryWrapper = QueryService.buildQuery(req);
+  // sails.log("queryWrapper --Place.destory-- :::\n", queryWrapper);
+  // let query = queryWrapper.query;
 
-  let id = query.where.id;
+  let id = query.id;
   if (!QueryService.checkParamPassed(id)) {
     return res.send(400, { message: "!id" });
   }

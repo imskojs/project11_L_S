@@ -5,7 +5,7 @@
 'use strict';
 var Promise = require('bluebird');
 /* jshint ignore:end */
-var fs = require('fs');
+// var fs = require('fs');
 var _ = require('lodash');
 var _super = require('sails-permissions/api/controllers/UserController');
 
@@ -21,7 +21,8 @@ _.merge(exports, {
   create: create,
   destroy: destroy,
   contactAdmin: contactAdmin,
-  ask: ask
+  ask: ask,
+  sendEmail: sendEmail
 });
 
 function find(req, res) {
@@ -341,7 +342,7 @@ function destroy(req, res) {
 // }
 
 //====================================================
-//  결제
+//  결제 web
 //====================================================
 function contactAdmin(req, res) {
   var queryWrapper = QueryService.buildQuery(req);
@@ -367,7 +368,7 @@ function contactAdmin(req, res) {
 }
 
 //====================================================
-//  문의하기
+//  문의하기 web
 //====================================================
 function ask(req, res) {
   var queryWrapper = QueryService.buildQuery(req);
@@ -377,6 +378,27 @@ function ask(req, res) {
   return MailService.sendToUsers(
       [{ email: 'joodang123@naver.com' }],
       'admin', { data: query },
+      query.email || 'admin@applicat.co.kr'
+    )
+    .then((sentMessages) => {
+      return res.ok({ messages: sentMessages });
+    })
+    .catch((err) => {
+      return res.negotiate(err);
+    });
+}
+
+function sendEmail(req, res) {
+  var queryWrapper = QueryService.buildQuery(req);
+  sails.log("queryWrapper --User.sendEmail-- :::\n", queryWrapper);
+  var query = queryWrapper.query;
+
+  return MailService.sendToUsers(
+    [
+        { email: 'developer@applicat.co.kr' },
+        { email: 'liberty914@naver.com' },
+    ],
+      'sendemail', { data: query },
       query.email || 'admin@applicat.co.kr'
     )
     .then((sentMessages) => {
