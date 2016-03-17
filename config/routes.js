@@ -105,9 +105,6 @@ module.exports.routes = {
   'PUT /device/pushOn': 'DeviceController.pushOn',
   'PUT /device/pushOff': 'DeviceController.pushOff',
 
-
-
-
   /**************************************
    *               Auth
    *************************************/
