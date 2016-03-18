@@ -1,10 +1,12 @@
 module.exports.routes = {
+
   '/': {
     assets: 'index.html'
   },
-  '/admin': {
-    assets: 'admin.html'
-  },
+
+  // '/admin': {
+  //   assets: 'admin.html'
+  // },
   //====================================================
   //  Banner
   //====================================================
