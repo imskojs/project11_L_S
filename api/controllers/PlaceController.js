@@ -65,6 +65,7 @@ function findNative(req, res) {
   //     },
   //     category: 'PREMIUM' || 'SPECIAL' || 'NORMAL'
   //     keywords: {$in: keywords }, 
+  //     theme: '헌팅' // them is an array.
   //       // filter = new RegExp([filter].join(""), "i");
   //       // $or: [{'name': filter }, {'description': filter }, {'createdBy': filter }],
   //       // id: {$gt: someId }, id: {$lt: someId }

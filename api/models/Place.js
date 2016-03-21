@@ -33,7 +33,7 @@ module.exports = {
     },
     // '헌팅', '데이트', '단체', '술마시기좋은', '안주가맛있는'
     theme: { // search using contains
-      type: 'String'
+      type: 'ARRAY'
     },
     // '포차/호프', 'Pub', 'Bar/라운지', '이자카야'
     // 'Beer', '와인', '전통주점', '퓨전주점', 

@@ -83,6 +83,10 @@ function destroy(req, res) {
     return res.send(400, { message: "!place || !loggedIn" });
   }
 
+  if (!query.owner) {
+    query.owner = req.user && req.user.id;
+  }
+
   return Favorite.destroy(query)
     .then(() => {
       let favoriteFind = Favorite.find({
