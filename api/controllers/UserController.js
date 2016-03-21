@@ -75,9 +75,10 @@ function findOne(req, res) {
 }
 
 function update(req, res) {
-  var queryWrapper = QueryService.buildQuery(req);
-  sails.log("queryWrapper --User.update-- :::\n", queryWrapper);
-  var query = queryWrapper.query;
+  var query = req.allParams();
+  // var queryWrapper = QueryService.buildQuery(req);
+  // sails.log("queryWrapper --User.update-- :::\n", queryWrapper);
+  // var query = queryWrapper.query;
   var id = query.id;
   delete query.id;
 
