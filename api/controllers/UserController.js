@@ -99,8 +99,16 @@ function update(req, res) {
   return User.update({
       id: id
     }, propertiesToUpdate)
-    .then((inArray) => {
-      let user = inArray[0];
+    .then((users) => {
+      let user = users[0];
+      return User.findOne({ id: user.id })
+        .populate('profilePhoto')
+        .populate('roles')
+        .populate('favorites');
+    })
+    .then((preUser) => {
+      var user = preUser.toObject();
+      user.favorites = _.pluck(user.favorites, 'place');
       return res.ok(user);
     })
     .catch((err) => {
