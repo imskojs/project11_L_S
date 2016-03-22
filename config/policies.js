@@ -58,6 +58,7 @@ module.exports.policies = {
 
   DeviceController: {
     register: true,
+    // update: true
   },
 
   DataController: [

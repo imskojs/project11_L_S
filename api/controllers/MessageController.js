@@ -28,6 +28,8 @@ function create(req, res) {
       ];
     })
     .spread((devices, user) => {
+      sails.log("devices :::\n", devices);
+      sails.log("user :::\n", user);
       PushService.sendAll(devices,
         user.nickname + '으로부터 새로운 쪽지가 도착하였습니다',
         query.content

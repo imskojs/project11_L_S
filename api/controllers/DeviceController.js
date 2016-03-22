@@ -100,17 +100,16 @@ function update(req, res) {
   var device = req.allParams();
   sails.log("device --Device.update-- :::\n", device);
 
-  if (!QueryService.checkParamPassed(device.deviceId, req.user)) {
-    return res.send(400, { message: "!deviceId || !req.user" });
+  if (!QueryService.checkParamPassed(device.deviceId, device.user)) {
+    return res.send(400, { message: "!deviceId || !user" });
   }
-  device.user = req.user;
 
   return Device.update({
       deviceId: device.deviceId
-    }, device)
-    .then((updatedDevice) => {
+    }, { user: device.user })
+    .then((updatedDevices) => {
       return res.ok({
-        device: updatedDevice
+        devices: updatedDevices
       });
     })
     .catch(function(err) {
