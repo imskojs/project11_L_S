@@ -55,11 +55,32 @@ function find(req, res) {
       if (more) {
         posts.pop();
       }
+      let usersPromise = _.map(posts, (post) => {
+        let owner;
+        if (typeof post.owner === 'string') {
+          owner = post.owner;
+        } else {
+          owner = post.owner && post.owner.id;
+        }
+        return User.findOne({
+            id: owner
+          })
+          .populate('profilePhoto');
+      });
+      return [posts, Promise.all(usersPromise), more, count];
+    })
+    .spread((posts, users, more, count) => {
+      let pojoPosts = _.map(posts, (post, i) => {
+        var pojoPost = post.toObject();
+        pojoPost.owner = users[i];
+        return pojoPost;
+      });
       return res.ok({
-        posts: posts,
+        posts: pojoPosts,
         more: more,
         total: count
       });
+
     })
     .catch((err) => {
       return res.negotiate(err);
@@ -77,7 +98,23 @@ function findOne(req, res) {
 
   return postPromise
     .then((post) => {
-      return res.ok(post);
+      let owner;
+      if (typeof post.owner === 'string') {
+        owner = post.owner;
+      } else {
+        owner = post.owner && post.owner.id;
+      }
+      let userPromise = User.findOne({
+          id: owner
+        })
+        .populate('profilePhoto');
+
+      return [post, userPromise];
+    })
+    .spread((post, user) => {
+      let pojoPost = post.toObject();
+      pojoPost.owner = user;
+      return res.ok(pojoPost);
     })
     .catch((err) => {
       return res.negotiate(err);
