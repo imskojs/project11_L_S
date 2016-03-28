@@ -76,33 +76,23 @@ function findOne(req, res) {
 
 function update(req, res) {
   var query = req.allParams();
-  // var queryWrapper = QueryService.buildQuery(req);
-  // sails.log("queryWrapper --User.update-- :::\n", queryWrapper);
-  // var query = queryWrapper.query;
   var id = query.id;
   delete query.id;
+  delete query.password;
+  delete query.newPassword;
 
   if (!QueryService.checkParamPassed(id)) {
     return res.send(400, { message: "!id" });
   }
 
-  var propertiesAllowedToUpdate = [
-    'nickname', 'profilePhoto'
-  ];
-  let propertiesToUpdate = {};
-  _.forEach(propertiesAllowedToUpdate, function(property) {
-    if (query[property]) {
-      propertiesToUpdate[property] = query[property];
-    }
-  });
-
   return User.update({
       id: id
-    }, propertiesToUpdate)
+    }, query)
     .then((users) => {
       let user = users[0];
       return User.findOne({ id: user.id })
         .populate('profilePhoto')
+        .populate('photos')
         .populate('roles')
         .populate('favorites');
     })

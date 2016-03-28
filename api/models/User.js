@@ -1,12 +1,12 @@
 // api/models/User.js
 
+/* jshint ignore:start */
+var Promise = require('bluebird');
+/* jshint ignore:end */
 var _ = require('lodash');
 var _super = require('sails-permissions/api/models/User');
-
 _.merge(exports, _super);
 _.merge(exports, {
-
-  // Extend with custom logic here by adding additional fields, methods, etc.
   schema: false,
   attributes: {
     username: {
@@ -14,32 +14,62 @@ _.merge(exports, {
       unique: true,
       index: true
     },
-    email: {
-      type: 'email',
-      unique: true,
-      index: true
-    },
-
-    // Properties
-    nickname: {
-      // unique: true,
+    name: {
       type: 'String'
     },
-
+    mobilePhone: {
+      type: 'String'
+    },
     profilePhoto: {
       model: 'Photo'
+    },
+    // roles set in _super
+
+    //====================================================
+    //  User
+    //====================================================
+    phone: { //optional
+      type: 'String'
+    },
+    email: {
+      type: 'email',
+      unique: true
+    },
+    userType: { // '개인', '사업자', '주선사업자'
+      type: 'String'
+    },
+    favorites: {
+      collection: 'Favorite',
+      via: 'owner'
+    },
+    //====================================================
+    //  Driver
+    //====================================================
+    vehicleWeight: {
+      type: 'String'
+    },
+    vehicleType: {
+      type: 'String'
+    },
+    maxLoadable: {
+      type: 'String'
+    },
+    vehicleNumber: {
+      type: 'String'
+    },
+    driverSummary: { //optional
+      type: 'String'
+    },
+    // Association
+    photos: { // optional
+      collection: 'Photo',
+      via: 'vehicle'
     },
 
     devices: {
       collection: 'Device',
       via: 'user'
     },
-
-    favorites: {
-      collection: 'Favorite',
-      via: 'owner'
-    },
-
     //====================================================
     //  Not used
     //====================================================
@@ -52,53 +82,43 @@ _.merge(exports, {
     accesscount: {
       type: 'integer'
     },
-
+    owner: {
+      model: 'User'
+    },
+    createdBy: {
+      model: 'User'
+    },
+    updatedBy: {
+      model: 'User'
+    }
   },
+
   afterCreate: function setOwner(user, next) {
-
-    sails.log('User.afterCreate.setOwner', user);
-
-    User
-      .update({
-        id: user.id
-      }, {
-        owner: user.id
-      })
+    return User.update({ id: user.id }, { owner: user.id })
       .then(function(users) {
-
-        sails.log.debug("User update assign owner: " + users[0].toJSON());
-
-        return [User.findOne({
-            id: users[0].id
-          }).populate('roles'),
-          Role.find({
-            name: 'USER'
+        var user = users[0];
+        var userFindOne = User.findOne({
+            id: user.id
           })
-        ];
+          .populate('roles');
+        var roleFind = Role.find({ name: 'USER' });
+        return [userFindOne, roleFind];
       })
       .spread(function(user, roles) {
-
-        sails.log.debug("User assigning default role: " + JSON.stringify(user));
-
-        if (user)
+        if (user) {
           if (!user.roles || user.roles.length === 0) {
-            User.update({
-                id: user.id
-              }, {
-                roles: roles
-              })
-              .exec(function(err, users) {
-                sails.log.debug("User default assign done: " + JSON.stringify(users));
-              });
+            return User.update({ id: user.id }, { roles: roles });
           }
-
+        } else {
+          return Promise.resolve();
+        }
+      })
+      .then(function() {
         next();
       })
-      .catch(function(e) {
-        sails.log.error(e);
-        next(e);
+      .catch(function(err) {
+        sails.log.error(err);
+        next(err);
       });
-
   }
-
 });

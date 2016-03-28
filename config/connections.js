@@ -10,8 +10,8 @@ module.exports.connections = {
 
   someMongodbServer: {
     adapter: 'sails-mongo',
-    url: "mongodb://joodangDbUser:applicat88@SG-Applicat-5222.servers.mongodirector.com:27017/joodang"
-      // url: "mongodb://localhost:27017/joodang"
+    url: "mongodb://logisticsDbUser:applicat88@SG-Applicat-5222.servers.mongodirector.com:27017/logistics"
+      // url: "mongodb://localhost:27017/logistics"
   },
 
   gcm: gcm.gcm({
@@ -38,7 +38,7 @@ module.exports.connections = {
     cloud_name: 'appdev',
     api_key: '355231636137138',
     api_secret: 'p_5ViDMlrlNZJFUP91trdUmo904',
-    tags: ['APPLICAT', 'SHOWPLA']
+    tags: ['APPLICAT', 'LOGISTICS']
   },
 
   //Production
@@ -46,7 +46,7 @@ module.exports.connections = {
   //  cloud_name: 'applicat',
   //  api_key: '992351679812158',
   //  api_secret: 'DHNaG-VHyUE8rVax4ay8YqbeQm8',
-  //  tags: ['APPLICAT', 'SHOWPLA']
+  //  tags: ['APPLICAT', 'LOGISTICS']
   //},
 
   /*

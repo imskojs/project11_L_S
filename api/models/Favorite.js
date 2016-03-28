@@ -6,7 +6,6 @@ module.exports = {
     place: {
       model: 'Place'
     },
-
     owner: {
       model: 'User'
     },

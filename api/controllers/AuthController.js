@@ -1,18 +1,16 @@
-// api/controllers/AuthController.js
-
+//====================================================
+//  Touched By Sko 3.16
+//====================================================
+/* jshint ignore:start */
 'use strict';
+var Promise = require('bluebird');
+/* jshint ignore:end */
 var _ = require('lodash');
 var _super = require('sails-permissions/api/controllers/AuthController');
 var request = require('request');
-var Promise = require('bluebird');
 
 _.merge(exports, _super);
 _.merge(exports, {
-
-  checkNickname: checkNickname,
-  checkUsername: checkUsername,
-  checkEmail: checkEmail,
-
   login: login,
   logout: logout,
 
@@ -24,142 +22,44 @@ _.merge(exports, {
   forgotPasswordComplete: forgotPasswordComplete,
   changePassword: changePassword
 });
+// {password: Required, anyProperty: Optional}
+function register(req, res) {
+  var query = req.allParams();
+  sails.log("query -- User.register -- :::\n", query);
 
-
-function checkNickname(req, res) {
-
-  var nickname = req.param("nickname");
-
-  if (!QueryService.checkParamPassed(nickname)) {
-    res.send(400, {
-      message: "모든 매개 변수를 입력해주세요 code: 003"
-    });
-    return;
-  }
-
-  User.findOne({
-      nickname: nickname
-    })
-    .then(function(user) {
-      if (user) {
-        res.send(200, {
-          isAvailable: false
-        });
-      } else {
-        res.send(200, {
-          isAvailable: true
-        });
-      }
-    })
-    .catch(function(err) {
-      sails.log.error(err);
-      res.send(500, {
-        message: "닉네임 찾기를 실패 했습니다. 서버에러 code: 001"
-      });
-    });
+  sails.services.passport.protocols.local.register(query, function(err, user) {
+    sails.log("user :::\n", user);
+    if (err) {
+      return res.send(500, { message: err });
+    }
+    return res.ok({ message: 'registerSuccess' });
+  });
 }
 
-
-function checkUsername(req, res) {
-
-  var username = req.param("username");
-
-  if (!QueryService.checkParamPassed(username)) {
-    res.send(400, {
-      message: "모든 매개 변수를 입력해주세요 code: 003"
-    });
-    return;
-  }
-
-  User.findOne({
-      username: username
-    })
-    .then(function(user) {
-
-      if (user) {
-        res.send(200, {
-          isAvailable: false
-        });
-      } else {
-        res.send(200, {
-          isAvailable: true
-        });
-      }
-    })
-    .catch(function(err) {
-      sails.log.error(err);
-      res.send(500, {
-        message: "Username 찾기를 실패 했습니다. 서버에러 code: 001"
-      });
-    });
-}
-
-function checkEmail(req, res) {
-
-  var email = req.param("email");
-
-  if (!QueryService.checkParamPassed(email)) {
-    res.send(400, {
-      message: "모든 매개 변수를 입력해주세요 code: 003"
-    });
-    return;
-  }
-
-  User.findOne({
-      email: email
-    })
-    .then(function(user) {
-
-      if (user) {
-        res.send(200, {
-          isAvailable: false
-        });
-      } else {
-        res.send(200, {
-          isAvailable: true
-        });
-
-      }
-    })
-    .catch(function(err) {
-      sails.log.error(err);
-      res.send(500, {
-        message: "이메일 찾기를 실패 했습니다. 서버에러 code: 001"
-      });
-    });
-}
-
+// {identifier: Required, password: Required}
 function login(req, res) {
-
   sails.services.passport.callback(req, res, (err, user) => {
-    sails.log("-----------  req.allParams()  -------------");
-    sails.log(req.allParams());
-    sails.log("-----------  err  -------------");
-    sails.log(err);
-
-    sails.log("-----------  user  -------------");
-    sails.log(user);
     if (err || !user) {
       return res.forbidden();
     }
-
-    req.login(user, function(err) {
+    return req.login(user, function(err) {
       if (err) {
         sails.log.warn(err);
         return res.forbidden();
       }
-
-      sails.log(user);
-
-      User.findOne({
+      return User.findOne({
           id: user.id
         })
         .populate('roles')
-        .then((user) => {
-          sails.log.info('user', user, 'authenticated successfully');
+        .populate('favorites')
+        .then((preUser) => {
           req.session.authenticated = true;
-          let token = UtilService.getToken(user);
-
+          // let token = UtilService.getToken(preUser);
+          let token = UtilService.getToken({
+            id: preUser.id
+          });
+          let user = preUser.toObject();
+          user.favorites = _.pluck(user.favorites, 'post');
           return res.send(200, {
             user: user,
             token: token
@@ -168,10 +68,8 @@ function login(req, res) {
         .catch((err) => {
           return res.send(400, err);
         });
-
     });
   });
-
 }
 
 function logout(req, res) {
@@ -181,29 +79,6 @@ function logout(req, res) {
   });
 }
 
-function register(req, res) {
-
-  sails.log("-----------  req.allParams()  -------------");
-  sails.log(req.allParams());
-  // var user = QueryService.buildQuery({}, req.allParams()).query;
-  var user = req.body;
-
-  //password:
-  //email:
-  delete user.roles;
-
-  sails.log.debug(user);
-
-  sails.services.passport.protocols.local.register(user, function(err, user) {
-    if (err) {
-      return res.send(500, {
-        message: err
-      });
-    }
-
-    return res.ok(user);
-  });
-}
 
 function registerPassport(req, res) {
 

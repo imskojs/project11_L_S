@@ -133,15 +133,7 @@ module.exports = {
       via: 'place'
     },
 
-    favorites: {
-      collection: 'Favorite',
-      via: 'place'
-    },
     // Not used but just incase
-    posts: {
-      collection: 'Post',
-      via: 'place'
-    },
 
     owner: {
       model: 'User'

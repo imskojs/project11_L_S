@@ -8,31 +8,44 @@ const Promise = require('bluebird');
 const _ = require('lodash');
 
 module.exports = {
-  create: create,
-  find: find,
   findOne: findOne,
+  find: find,
+  findFavorite: findFavorite,
+  create: create,
+  destroyCreate: destroyCreate,
   update: update,
   destroy: destroy
 };
 
-function create(req, res) {
+function findOne(req, res) {
   let queryWrapper = QueryService.buildQuery(req);
-  sails.log("queryWrapper --Post.create-- :::\n", queryWrapper);
+  sails.log("queryWrapper --Post.findOne-- :::\n", queryWrapper);
   let query = queryWrapper.query;
   let populate = queryWrapper.populate;
 
-  if (!QueryService.checkParamPassed(query.category, query.content)) {
-    return res.send(400, { message: "!category || !content" });
-  }
+  let postPromise = Post.findOne(query);
+  QueryService.applyPopulate(postPromise, populate);
 
-  return Post.create(query)
+  return postPromise
     .then((post) => {
-      let postPromise = Post.findOne({ id: post.id });
-      QueryService.applyPopulate(postPromise, populate);
-      return postPromise;
+      let owner;
+      if (typeof post.owner === 'string') {
+        owner = post.owner;
+      } else {
+        owner = post.owner && post.owner.id;
+      }
+      let userPromise = User.findOne({
+          id: owner
+        })
+        .populate('profilePhoto')
+        .populate('photos');
+
+      return [post, userPromise];
     })
-    .then((post) => {
-      return res.ok(post);
+    .spread((post, user) => {
+      let pojoPost = post.toObject();
+      pojoPost.owner = user;
+      return res.ok(pojoPost);
     })
     .catch((err) => {
       return res.negotiate(err);
@@ -55,66 +68,81 @@ function find(req, res) {
       if (more) {
         posts.pop();
       }
-      let usersPromise = _.map(posts, (post) => {
-        let owner;
-        if (typeof post.owner === 'string') {
-          owner = post.owner;
-        } else {
-          owner = post.owner && post.owner.id;
-        }
-        return User.findOne({
-            id: owner
-          })
-          .populate('profilePhoto');
-      });
-      return [posts, Promise.all(usersPromise), more, count];
+      return [posts, more, count];
     })
-    .spread((posts, users, more, count) => {
-      let pojoPosts = _.map(posts, (post, i) => {
-        var pojoPost = post.toObject();
-        pojoPost.owner = users[i];
-        return pojoPost;
-      });
+    .spread((posts, more, count) => {
       return res.ok({
-        posts: pojoPosts,
+        posts: posts,
         more: more,
         total: count
       });
-
     })
     .catch((err) => {
       return res.negotiate(err);
     });
 }
 
-function findOne(req, res) {
+function findFavorite(req, res) {
   let queryWrapper = QueryService.buildQuery(req);
-  sails.log("queryWrapper --Post.findOne-- :::\n", queryWrapper);
-  let query = queryWrapper.query;
+  sails.log("queryWrapper --Post.find--:::\n", queryWrapper);
+  // let query = queryWrapper.query;
   let populate = queryWrapper.populate;
 
-  let postPromise = Post.findOne(query);
-  QueryService.applyPopulate(postPromise, populate);
+  if (!QueryService.checkParamPassed(req.user)) {
+    return res.send(400, { message: "loggedIn" });
+  }
 
-  return postPromise
-    .then((post) => {
-      let owner;
-      if (typeof post.owner === 'string') {
-        owner = post.owner;
-      } else {
-        owner = post.owner && post.owner.id;
-      }
-      let userPromise = User.findOne({
-          id: owner
-        })
-        .populate('profilePhoto');
-
-      return [post, userPromise];
+  return Favorite.find({
+      owner: req.user.id
     })
-    .spread((post, user) => {
-      let pojoPost = post.toObject();
-      pojoPost.owner = user;
-      return res.ok(pojoPost);
+    .then(function(preFavorites) {
+      var favorites = _.pluck(preFavorites, 'place');
+      var postsPro = Post.find({ id: favorites });
+      QueryService.applyPopulate(postsPro, populate);
+      return [favorites, postsPro];
+    })
+    .spread(function(favorites, posts) {
+      return res.ok({
+        favorites: favorites,
+        posts: posts
+      });
+    })
+    .catch(function(err) {
+      return res.negotiate(err);
+    });
+}
+
+function destroyCreate(req, res) {
+  let query = req.allParams();
+  if (!QueryService.checkParamPassed(query.owner, req.user, query.category)) {
+    return res.send(400, { message: "!owner || !loggedIn" });
+  }
+  return Post.destroy({
+      owner: req.user && req.user.id,
+      category: query.category
+    })
+    .then(function(posts) {
+      let pro1 = Favorite.destroy({ post: posts });
+      let pro2 = Post.create(query);
+      return [pro1, pro2];
+    })
+    .spread(function(fav, post) {
+      return res.ok(post);
+    })
+    .catch(function(err) {
+      return res.negotiate(err);
+    });
+}
+
+function create(req, res) {
+  let query = req.allParams();
+
+  if (!QueryService.checkParamPassed(query.category)) {
+    return res.send(400, { message: "!category" });
+  }
+  return Post.create(query)
+    .then((post) => {
+      return res.ok(post);
     })
     .catch((err) => {
       return res.negotiate(err);
@@ -122,35 +150,19 @@ function findOne(req, res) {
 }
 
 function update(req, res) {
-  let queryWrapper = QueryService.buildQuery(req);
-  sails.log("queryWrapper --Post.update-- :::\n", queryWrapper);
-  let query = queryWrapper.query;
-  query.updatedBy = req.user && req.user.id;
+  let query = req.allParams();
   let id = query.id;
   delete query.id;
 
   if (!QueryService.checkParamPassed(id)) {
-    return res.send(400, {
-      message: "no id sent"
-    });
+    return res.send(400, { message: "!id" });
   }
-
-  let propertiesAllowedToUpdate = [
-    'title', 'category', 'showInTalk', 'content', 'photos'
-  ];
-  let propertiesToUpdate = {};
-  _.forEach(propertiesAllowedToUpdate, (property) => {
-    if (query[property]) {
-      propertiesToUpdate[property] = query[property];
-    }
-  });
 
   return Post.update({
       id: id
-    }, propertiesToUpdate)
+    }, query)
     .then((posts) => {
-      let post = posts[0];
-      return res.ok(post);
+      return res.ok({ posts: posts });
     })
     .catch((err) => {
       return res.negotiate(err);
@@ -174,13 +186,62 @@ function destroy(req, res) {
     })
     .then((posts) => {
       let post = posts[0];
-      let comments = Comment.destroy({ post: post.id });
-      return [post, comments];
+      let favs = Favorite.destroy({ post: post.id });
+      return [favs, post];
     })
-    .spread((dPost) => {
+    .spread((favs, dPost) => {
       return res.ok(dPost);
     })
     .catch((err) => {
       return res.negotiate(err);
     });
 }
+
+
+// function find(req, res) {
+//   let queryWrapper = QueryService.buildQuery(req);
+//   sails.log("queryWrapper --Post.find--:::\n", queryWrapper);
+//   let query = queryWrapper.query;
+//   let populate = queryWrapper.populate;
+
+//   let postPromise = Post.find(query);
+//   QueryService.applyPopulate(postPromise, populate);
+//   let countPromise = Post.count(query);
+
+//   return Promise.all([postPromise, countPromise])
+//     .spread((posts, count) => {
+//       let more = (posts[query.limit - 1]) ? true : false;
+//       if (more) {
+//         posts.pop();
+//       }
+//       let usersPromise = _.map(posts, (post) => {
+//         let owner;
+//         if (typeof post.owner === 'string') {
+//           owner = post.owner;
+//         } else {
+//           owner = post.owner && post.owner.id;
+//         }
+//         return User.findOne({
+//             id: owner
+//           })
+//           .populate('profilePhoto');
+//       });
+//       return [posts, Promise.all(usersPromise), more, count];
+//     })
+//     .spread((posts, users, more, count) => {
+//       let pojoPosts = _.map(posts, (post, i) => {
+//         var pojoPost = post.toObject();
+//         pojoPost.owner = users[i];
+//         return pojoPost;
+//       });
+//       return res.ok({
+//         posts: pojoPosts,
+//         more: more,
+//         total: count
+//       });
+
+//     })
+//     .catch((err) => {
+//       return res.negotiate(err);
+//     });
+// }
