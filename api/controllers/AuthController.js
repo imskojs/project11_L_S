@@ -1,10 +1,10 @@
 //====================================================
 //  Touched By Sko 3.16
 //====================================================
-/* jshint ignore:start */
-'use strict';
-var Promise = require('bluebird');
-/* jshint ignore:end */
+/* globals User, Role, Passport */
+/* globals UtilService, UserService, QueryService */
+'use strict'; // jshint ignore:line
+var Promise = require('bluebird'); // jshint ignore:line
 var _ = require('lodash');
 var _super = require('sails-permissions/api/controllers/AuthController');
 var request = require('request');
@@ -26,20 +26,51 @@ _.merge(exports, {
 function register(req, res) {
   var query = req.allParams();
   sails.log("query -- User.register -- :::\n", query);
+  var roles /*: string*/ = query.roles;
+  delete query.roles;
+  var rolesPro;
+  if (roles === 'OWNER') {
+    rolesPro = Role.find({ name: 'OWNER' });
+  } else if (roles === 'USER') {
+    rolesPro = Role.find({ name: 'USER' });
+  } else {
+    return res.send(400, { message: '!roles' });
+  }
 
-  sails.services.passport.protocols.local.register(query, function(err, user) {
-    sails.log("user :::\n", user);
-    if (err) {
-      return res.send(500, { message: err });
-    }
-    return res.ok({ message: 'registerSuccess' });
-  });
+  return rolesPro
+    .then(function(roles) {
+      query.roles = roles;
+      //====================================================
+      //  REFACTOR
+      //====================================================
+      var deferred = Promise.pending();
+      sails.services.passport.protocols.local.register(query, function(err, user) {
+        sails.log("user :::\n", user);
+        if (err) {
+          deferred.reject(err);
+        } else {
+          deferred.resolve(user);
+        }
+      });
+      return deferred.promise;
+      //====================================================
+      //  REFACTOR
+      //====================================================
+    })
+    .then(function(user) {
+      return res.ok(user);
+    })
+    .catch(function(err) {
+      return res.negotiate(err);
+    });
 }
 
 // {identifier: Required, password: Required}
 function login(req, res) {
+  console.log("req.allParams() -- user02 --:::\n", req.allParams());
   sails.services.passport.callback(req, res, (err, user) => {
     if (err || !user) {
+      console.log("user :::\n", user);
       return res.forbidden();
     }
     return req.login(user, function(err) {
@@ -60,6 +91,7 @@ function login(req, res) {
           });
           let user = preUser.toObject();
           user.favorites = _.pluck(user.favorites, 'post');
+          sails.log("user :::\n", user);
           return res.send(200, {
             user: user,
             token: token
@@ -488,21 +520,13 @@ function forgotPasswordComplete(req, res) {
 
 
 function changePassword(req, res) {
-  // let queryWrapper = QueryService.buildQuery({}, req.allParams());
-  console.log("---------- req.allParams() ----------");
-  console.log(req.allParams());
-  let queryWrapper = req.allParams();
-
-  sails.log(queryWrapper);
-  let query = queryWrapper.query;
-
+  // oldPassword, newPassword
+  let query = req.allParams();
   var oldPassword = query.oldPassword;
   var newPassword = query.newPassword;
 
   if (!QueryService.checkParamPassed(newPassword, oldPassword)) {
-    return res.send(400, {
-      message: "Please pass all the parameters"
-    });
+    return res.send(400, {message: "!newPassword||!oldPassword"});
   }
 
   return Passport.find({
@@ -532,10 +556,9 @@ function changePassword(req, res) {
     })
     .catch(function(err) {
       if (err) {
-        res.send(400, {
+        return res.send(400, {
           message: "맞는 권한 찾기를 실패 했습니다."
         });
-        return;
       }
     });
 }

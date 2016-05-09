@@ -1,8 +1,5 @@
-// api/models/User.js
-
-/* jshint ignore:start */
-var Promise = require('bluebird');
-/* jshint ignore:end */
+/* globals User, Role */
+var Promise = require('bluebird'); // jshint ignore:line
 var _ = require('lodash');
 var _super = require('sails-permissions/api/models/User');
 _.merge(exports, _super);

@@ -10,6 +10,7 @@ module.exports.routes = {
   'POST /user/register': 'AuthController.register',
   'GET /user/findOne': 'UserController.findOne',
   'PUT /user/update': 'UserController.update',
+  'PUT /user/changePassword': 'AuthController.changePassword',
   // admin
   'GET /user/find': 'UserController.find',
   //====================================================
@@ -18,7 +19,7 @@ module.exports.routes = {
   'GET /post/findOne': 'PostController.findOne',
   'GET /post/find': 'PostController.find',
   'GET /post/findFavorite': 'PostController.findFavorite',
-  'PUT /post/destroyCreate': 'PostController.destroyCreate',
+  'POST /post/destroyCreate': 'PostController.destroyCreate',
   'DELETE /post/destroy': 'PostController.destroy',
   'PUT /post/update': 'PostController.update',
   // admin

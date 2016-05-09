@@ -1,27 +1,24 @@
+/* globals Banner */
+/* globals QueryService, ImageService */
 //====================================================
 //  Touched by Ko 2.16
 //====================================================
-'use strict';
-const Promise = require('bluebird');
+'use strict'; // jshint ignore:line
+const Promise = require('bluebird'); // jshint ignore:line
 const _ = require('lodash');
 
 module.exports = {
   create: create,
   find: find,
-  findFive: findFive,
   findOne: findOne,
   update: update,
   destroy: destroy,
 };
 
-// query: {isExternal, homepage, index, event?, photo?}
 function create(req, res) {
-  let queryWrapper = QueryService.buildQuery(req);
-  sails.log("queryWrapper --Banner.create-- :::\n", queryWrapper);
-  let query = queryWrapper.query;
-  if (!QueryService.checkParamPassed(query.index)) {
-    return res.send(400, { message: "!index" });
-  }
+  let query = req.allParams();
+  sails.log("query --Banner.create--:::\n", query);
+
   return Banner.create(query)
     .then((createdBanner) => {
       return Banner.findOne({
@@ -63,23 +60,6 @@ function find(req, res) {
     });
 }
 
-// query: null
-function findFive(req, res) {
-  return Banner.find({
-      where: {},
-      sort: 'index ASC',
-      limit: 5
-    }).populate('photo')
-    .then((banners) => {
-      return res.ok({
-        banners: banners
-      });
-    })
-    .catch((err) => {
-      return res.negotiate(err);
-    });
-}
-
 function findOne(req, res) {
   let queryWrapper = QueryService.buildQuery(req);
   sails.log("queryWrapper --Banner.findOne-- :::\n", queryWrapper);
@@ -100,10 +80,8 @@ function findOne(req, res) {
 
 
 function update(req, res) {
-  let queryWrapper = QueryService.buildQuery(req);
-  sails.log("queryWrapper -- Banner.update -- :::\n", queryWrapper);
-  let query = queryWrapper.query;
-  query.updatedBy = req.user.id;
+  let query = req.allParams();
+  sails.log("query -- banner.update -- :::\n", query);
   let id = query.id;
   delete query.id;
   if (!QueryService.checkParamPassed(id)) {
@@ -111,20 +89,18 @@ function update(req, res) {
       message: "id"
     });
   }
-
-  let propertiesAllowedToUpdate = [
-    'isExternal', 'homepage', 'index', 'event', 'photo'
+  let propertiesNotAllowedToUpdate = [
+    'id'
   ];
-  let propertiesToUpdate = {};
-  _.forEach(propertiesAllowedToUpdate, (property) => {
+  _.forEach(propertiesNotAllowedToUpdate, (property) => {
     if (query[property] !== undefined) {
-      propertiesToUpdate[property] = query[property];
+      delete query[property];
     }
   });
 
   return Banner.update({
       id: id
-    }, propertiesToUpdate)
+    }, query)
     .then((banners) => {
       let banner = banners[0];
       return res.ok(banner);

@@ -21,7 +21,7 @@ module.exports = {
 
 function upsertPhotos(req, res) {
   let queryWrapper = QueryService.buildQuery(req);
-  sails.log("queryWrapper --Photo.updatePhotos-- :::\n", queryWrapper);
+  sails.log("queryWrapper --Photo.upsertPhotos-- :::\n", queryWrapper);
   let query = queryWrapper.query;
   // let query = { 
   //   destroy: iPhoto.id[], 
@@ -49,7 +49,7 @@ function upsertPhotos(req, res) {
     })
     .then((updatedPhotos) => {
       sails.log("updatedPhotos --Photo.updatePhotos-- :::\n", updatedPhotos);
-      return [updatedPhotos, ImageService.createPhotos(req, ['JOODANG'], create)];
+      return [updatedPhotos, ImageService.createPhotos(req, ['LOGISTICS'], create)];
     })
     .spread((updatedPhotos, createdPhotos) => {
       let photos = updatedPhotos.concat(createdPhotos);

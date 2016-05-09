@@ -1,6 +1,9 @@
 //====================================================
-//  Touched by Ko
+//  Touched by SKo 4.11
 //====================================================
+/* globals QueryService */
+/* globals Post, User, Favorite */
+
 /* jshint ignore:start */
 'use strict';
 const Promise = require('bluebird');
@@ -28,6 +31,9 @@ function findOne(req, res) {
 
   return postPromise
     .then((post) => {
+      if(!post){
+        
+      }
       let owner;
       if (typeof post.owner === 'string') {
         owner = post.owner;
@@ -114,8 +120,9 @@ function findFavorite(req, res) {
 
 function destroyCreate(req, res) {
   let query = req.allParams();
-  if (!QueryService.checkParamPassed(query.owner, req.user, query.category)) {
-    return res.send(400, { message: "!owner || !loggedIn" });
+  console.log("query :::\n", query);
+  if (!QueryService.checkParamPassed(req.user, query.category)) {
+    return res.send(400, { message: "!loggedIn || !category" });
   }
   return Post.destroy({
       owner: req.user && req.user.id,

@@ -64,8 +64,7 @@ module.exports = {
     },
     // 상차 시간
     loadTime: {
-      type: 'String',
-      defaultsTo: '언제나'
+      type: 'String'
     },
     // 하차주소
     unloadProvince: { //undefined(전체), 수도권, 강원, 충청, 전라, 경상, 제주
@@ -84,8 +83,7 @@ module.exports = {
     },
     // 하차시간
     unloadTime: {
-      type: 'String',
-      defaultsTo: '언제나'
+      type: 'String'
     },
     // 화물품목
     goodType: {
@@ -109,7 +107,6 @@ module.exports = {
     //회망운임료/운송료선택
     price: {
       type: 'String',
-      defaultsTo: '견적요청'
     },
     // 지불방법
     payMethod: {
@@ -135,11 +132,18 @@ module.exports = {
     //예약확정
     reservation: { // pending, confirmed
       type: 'String',
-      defaultsTo: 'pending'
     },
 
     owner: {
       model: 'User' // {photos, profilePhoto}
+    },
+
+    createdBy: {
+      model: 'User'
+    }, 
+    
+    updatedBy: {
+      model: 'User'
     }
   }
 };

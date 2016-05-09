@@ -71,5 +71,12 @@ module.exports.policies = {
     contactAdmin: true,
     ask: true,
     sendEmail: true
+  },
+  //====================================================
+  //  Dev
+  //====================================================
+  PhotoController: {
+    upsertPhotos: true
   }
+
 };

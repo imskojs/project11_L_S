@@ -58,10 +58,6 @@ function findOne(req, res) {
   var query = queryWrapper.query;
   var populate = queryWrapper.populate;
 
-  if (!QueryService.checkParamPassed(query.where.id)) {
-    return res.send(400, { message: "!id" });
-  }
-
   var userPromise = User.findOne(query);
   QueryService.applyPopulate(userPromise, populate);
 
