@@ -31,8 +31,8 @@ function findOne(req, res) {
 
   return postPromise
     .then((post) => {
-      if(!post){
-        
+      if (!post) {
+        return res.ok({ message: 'no post' });
       }
       let owner;
       if (typeof post.owner === 'string') {
