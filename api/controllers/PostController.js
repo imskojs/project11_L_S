@@ -32,7 +32,7 @@ function findOne(req, res) {
   return postPromise
     .then((post) => {
       if (!post) {
-        return res.ok({ message: 'no post' });
+        return Promise.reject({ message: 'noPost' });
       }
       let owner;
       if (typeof post.owner === 'string') {
@@ -54,6 +54,9 @@ function findOne(req, res) {
       return res.ok(pojoPost);
     })
     .catch((err) => {
+      if (err.message === 'noPost') {
+        return res.ok({ message: 'no post' });
+      }
       return res.negotiate(err);
     });
 }
