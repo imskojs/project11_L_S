@@ -526,7 +526,7 @@ function changePassword(req, res) {
   var newPassword = query.newPassword;
 
   if (!QueryService.checkParamPassed(newPassword, oldPassword)) {
-    return res.send(400, {message: "!newPassword||!oldPassword"});
+    return res.send(400, { message: "!newPassword||!oldPassword" });
   }
 
   return Passport.find({
